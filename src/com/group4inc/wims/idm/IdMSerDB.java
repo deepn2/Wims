@@ -2,40 +2,54 @@ package com.group4inc.wims.idm;
 
 import java.util.ArrayList;
 
+/**
+* Object to act as a database for the Identiy Management portion of the program.
+* 
+* <P>This class acts as a database, containing multiple ArrayList objects, one for all User objects, another for all Group objects, and the final for all Role objects.
+* 
+* @see User
+* @see Role  
+* @see Group
+* @author Elliot Linder (eml160)
+*/
 public class IdMSerDB {
 	
+	/**the ArrayList containing all User objects created.
+	 * @see User*/
 	private static ArrayList<User> userDB = new ArrayList<User>();
+	/**the ArrayList containing all Group objects created.
+	 * @see Group*/
 	private static ArrayList<Group> groupDB = new ArrayList<Group>();
+	/**the ArrayList containing all Role objects created.
+	 * @see Role*/
 	private static ArrayList<Role> roleDB = new ArrayList<Role>();
 	
 	/**
-	 * Returns the user's name (not to be confused with the username).
+	 * Adds a User object to the UserDB (ArrayList of User objects).
 	 *
-	 * @param  url  an absolute URL giving the base location of the image
-	 * @param  name the location of the image, relative to the url argument
-	 * @return      the name of the User
+	 * @param  user  The User object to be added to the UserDB
+	 * @see User
 	 */
 	public static void addUserToUserDB(User user) {
 		userDB.add(user);
 	}
 	
 	/**
-	 * Returns the user's name (not to be confused with the username).
+	 * Removes a User object from the UserDB (ArrayList of User objects).
 	 *
-	 * @param  url  an absolute URL giving the base location of the image
-	 * @param  name the location of the image, relative to the url argument
-	 * @return      the name of the User
+	 * @param  user  The User object to be removed from the UserDB
+	 * @see User
 	 */
 	public static void removeUserFromUserDB(User user) {
 		userDB.remove(user);
 	}
 	
 	/**
-	 * Returns the user's name (not to be confused with the username).
+	 * Returns a User object after searching by the User's username property. Will return NULL if no match is found, case-sensitive search!
 	 *
-	 * @param  url  an absolute URL giving the base location of the image
-	 * @param  name the location of the image, relative to the url argument
-	 * @return      the name of the User
+	 * @param  username  The username of the User object to be retrieved.
+	 * @return      the User object which has the username that was being searched.
+	 * @see User
 	 */
 	public static User getUserByUsername(String username) {
 		boolean found = false;
@@ -57,44 +71,40 @@ public class IdMSerDB {
 	}
 	
 	/**
-	 * Returns the user's name (not to be confused with the username).
+	 * Adds a Group object to the GroupDB (ArrayList of Group objects).
 	 *
-	 * @param  url  an absolute URL giving the base location of the image
-	 * @param  name the location of the image, relative to the url argument
-	 * @return      the name of the User
+	 * @param  group  The Group object to be added to the GroupDB.
+	 * @see Group
 	 */
 	public static void addGroupToGroupDB(Group group) {
 		groupDB.add(group);
 	}
 	
 	/**
-	 * Returns the user's name (not to be confused with the username).
+	 * Removes a Group object from the GroupDB (ArrayList of Group objects).
 	 *
-	 * @param  url  an absolute URL giving the base location of the image
-	 * @param  name the location of the image, relative to the url argument
-	 * @return      the name of the User
+	 * @param  group  The Group object to be removed from the GroupDB
+	 * @see Group
 	 */
 	public static void removeGroupFromGroupDB(Group group) {
 		groupDB.remove(group);
 	}
 	
 	/**
-	 * Returns the user's name (not to be confused with the username).
+	 * Adds a Role object to the RoleDB (ArrayList of Role objects).
 	 *
-	 * @param  url  an absolute URL giving the base location of the image
-	 * @param  name the location of the image, relative to the url argument
-	 * @return      the name of the User
+	 * @param  role  The Role object to be added to the RoleDB
+	 * @see Role
 	 */
 	public static void addRoleToRoleDB(Role role) {
 		roleDB.add(role);
 	}
 	
 	/**
-	 * Returns the user's name (not to be confused with the username).
+	 * Removes a Role object from the Role (ArrayList of Role objects).
 	 *
-	 * @param  url  an absolute URL giving the base location of the image
-	 * @param  name the location of the image, relative to the url argument
-	 * @return      the name of the User
+	 * @param  role  The Role object to be removed from the RoleDB
+	 * @see Role
 	 */
 	public static void removeRoleFromRoleDB(Role role) {
 		roleDB.remove(role);
