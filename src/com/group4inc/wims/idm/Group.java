@@ -7,10 +7,10 @@ import java.util.ArrayList;
 * 
 * <P>This class defines Groups in the context of WIMS.
 * 
-* <P>Groups are used in WIMS to easily manage multiple User objects. Groups have Roles that can be applied system-wide. For example, an "overriders" group can be defined for those users who can override steps in the workflow process.
+* <P>Groups are used in WIMS to easily manage multiple User objects. For example, an "overriders" group can be defined for those users who can override steps in the workflow process.
 * 
 * @see User
-* @see Role  
+* @see Domain  
 * @author Elliot Linder (eml160)
 */
 public class Group {
@@ -19,8 +19,8 @@ public class Group {
 	private String name;
 	/**the members of the Group (e.g. admin, john)*/
 	private ArrayList<User> members;
-	/**the roles of the Group (e.g. all_programmers, all_overriders)*/
-	private ArrayList<Role> roles;
+	/**the domain of the Group (e.g. Rutgers)*/
+	private Domain domain;
 	
 	/**
 	 * Constructor for Group objects. This also instantiates empty members and roles ArrayLists.
@@ -41,7 +41,6 @@ public class Group {
 	public Group(String name, String initmem) {
 		name = this.name;
 		members = new ArrayList<User>();
-		roles = new ArrayList<Role>();
 		members.add(IdMSerDB.getUserByUsername(initmem));
 		IdMSerDB.addGroupToGroupDB(this);
 	}
@@ -88,9 +87,9 @@ public class Group {
 	 * Adds a role to the Group.
 	 *
 	 * @param  role  The Role object to be added to the Group.
-	 * @see Role
+	 * @see Domain
 	 */
-	public void addRole(Role role) {
+	public void addRole(Domain role) {
 		roles.add(role);
 	}
 	
@@ -98,9 +97,9 @@ public class Group {
 	 * Removes a role from the Group.
 	 *
 	 * @param  role  The Role object to be removed from the Group.
-	 * @see Role
+	 * @see Domain
 	 */
-	public void removeRole(Role role) {
+	public void removeRole(Domain role) {
 		roles.remove(role);
 	}
 

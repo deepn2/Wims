@@ -21,8 +21,8 @@ public class User {
 	private String username;
 	/**the password of the User. NOTE: This is stored in plaintext*/
 	private String password;
-	/**the roles of the User (e.g. all_programmers, all_overriders)*/
-	private ArrayList<Role> roles = new ArrayList<Role>();
+	/**the domains that the User belongs to*/
+	private ArrayList<Domain> domains = new ArrayList<Domain>();
 
 	/**
 	 * Constructor for User objects.
@@ -31,12 +31,14 @@ public class User {
 	 * @param  email the email address of the User to be constructed
 	 * @param  username the username of the User tot be constructed
 	 * @param  password the password of the User to be constructed
+	 * @param  initdomain the initial domain that the user is a part of
 	 */
-	public User(String name, String email, String username, String password) {
+	public User(String name, String email, String username, String password, String initdomain) {
 		name = this.name;
 		email = this.email;
 		username = this.username;
 		password = this.password;
+		domains.add(IdMSerDB.getDomainByName(initdomain));
 		IdMSerDB.addUserToUserDB(this);
 	}
 
@@ -104,32 +106,32 @@ public class User {
 	}
 	
 	/**
-	 * Adds a role to the User.
+	 * Adds a user to a Domain.
 	 *
-	 * @param  role  The Role object to be added to the User.
-	 * @see Role
+	 * @param  domain  The Domain object that the User is to be added to.
+	 * @see Domain
 	 */
-	public void addRole(Role role) {
-		roles.add(role);
+	public void addDomain(Domain domain) {
+		domains.add(domain);
 	}
 	
 	/**
-	 * Removes a role from the User.
+	 * Removes a User from a Domain.
 	 *
-	 * @param  role  The Role object to be removed from the User.
-	 * @see Role
+	 * @param  domain  The Domain object that the User is being removed from.
+	 * @see Domain
 	 */
-	public void removeRole(Role role) {
-		roles.remove(role);
+	public void removeRole(Domain domain) {
+		domains.remove(domain);
 	}
 	
 	/**
-	 * Returns the User's Roles.
+	 * Returns the User's Domain membership.
 	 *
-	 * @return      an ArrayList of Roles that the user has been assigned individually.
-	 * @see Role
+	 * @return      an ArrayList of Domains that the user has been added to.
+	 * @see Domain
 	 */
-	public ArrayList<Role> getRoles() {
-		return roles;
+	public ArrayList<Domain> getDomain() {
+		return domains;
 	}
 }

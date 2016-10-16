@@ -8,7 +8,7 @@ import java.util.ArrayList;
 * <P>This class acts as a database, containing multiple ArrayList objects, one for all User objects, another for all Group objects, and the final for all Role objects.
 * 
 * @see User
-* @see Role  
+* @see Domain  
 * @see Group
 * @author Elliot Linder (eml160)
 */
@@ -21,8 +21,8 @@ public class IdMSerDB {
 	 * @see Group*/
 	private static ArrayList<Group> groupDB = new ArrayList<Group>();
 	/**the ArrayList containing all Role objects created.
-	 * @see Role*/
-	private static ArrayList<Role> roleDB = new ArrayList<Role>();
+	 * @see Domain*/
+	private static ArrayList<Domain> domainDB = new ArrayList<Domain>();
 	
 	/**
 	 * Adds a User object to the UserDB (ArrayList of User objects).
@@ -71,6 +71,32 @@ public class IdMSerDB {
 	}
 	
 	/**
+	 * Returns a User object after searching by the User's username property. Will return NULL if no match is found, case-sensitive search!
+	 *
+	 * @param  username  The username of the User object to be retrieved.
+	 * @return      the User object which has the username that was being searched.
+	 * @see User
+	 */
+	public static Domain getDomainByName(String domainname) {
+		boolean found = false;
+		int i = 0;
+		Domain out = null;
+		
+		while(!found) {
+			if(domainDB.get(i).getName().equals(domainname)) {
+				out = domainDB.get(i);
+				found = true;
+			}
+			
+			else {
+				i++;
+			}
+		}
+		
+		return out;
+	}
+	
+	/**
 	 * Adds a Group object to the GroupDB (ArrayList of Group objects).
 	 *
 	 * @param  group  The Group object to be added to the GroupDB.
@@ -94,20 +120,20 @@ public class IdMSerDB {
 	 * Adds a Role object to the RoleDB (ArrayList of Role objects).
 	 *
 	 * @param  role  The Role object to be added to the RoleDB
-	 * @see Role
+	 * @see Domain
 	 */
-	public static void addRoleToRoleDB(Role role) {
-		roleDB.add(role);
+	public static void addDomainToDomainDB(Domain domain) {
+		domainDB.add(domain);
 	}
 	
 	/**
 	 * Removes a Role object from the Role (ArrayList of Role objects).
 	 *
 	 * @param  role  The Role object to be removed from the RoleDB
-	 * @see Role
+	 * @see Domain
 	 */
-	public static void removeRoleFromRoleDB(Role role) {
-		roleDB.remove(role);
+	public static void removeRoleFromRoleDB(Domain role) {
+		domainDB.remove(role);
 	}	
 	
 	/**
@@ -134,10 +160,10 @@ public class IdMSerDB {
 	 * Returns the RoleDB ArrayList (ArrayList of all Role objects).
 	 *
 	 * @return  An ArrayList of all Roles created.
-	 * @see Role
+	 * @see Domain
 	 */
-	public static ArrayList<Role> getRoleDB() {
-		return roleDB;
+	public static ArrayList<Domain> getDomainDB() {
+		return domainDB;
 	}
 
 }
