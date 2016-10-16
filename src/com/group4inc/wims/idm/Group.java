@@ -2,88 +2,104 @@ package com.group4inc.wims.idm;
 
 import java.util.ArrayList;
 
+/**
+* Group Object.
+* 
+* <P>This class defines Groups in the context of WIMS.
+* 
+* <P>Groups are used in WIMS to easily manage multiple User objects. For example, an "overriders" group can be defined for those users who can override steps in the workflow process.
+* 
+* @see User
+* @see Domain  
+* @author Elliot Linder (eml160)
+*/
 public class Group {
 	
-	String name;
-	ArrayList<User> members;
-	ArrayList<Role> roles;
+	/**the name of the Group (e.g. overriders)*/
+	private String name;
+	/**the members of the Group (e.g. admin, john)*/
+	private ArrayList<User> members;
+	/**the domain of the Group (e.g. Rutgers)*/
+	private Domain domain;
 	
+	/**
+	 * Constructor for Group objects. This also instantiates empty members and roles ArrayLists.
+	 *
+	 * @param  name the name of the Group to be constructed
+	 */
 	public Group(String name) {
 		name = this.name;
 		members = new ArrayList<User>();
 	}
 	
+	/**
+	 * Constructor for Group objects. This also instantiates the members ArrayList with a member. An empty roles ArrayList is instantiated.
+	 *
+	 * @param  name the name of the Group to be constructed
+	 * @param  initmem the username of the User to be added to the Group
+	 */
 	public Group(String name, String initmem) {
 		name = this.name;
 		members = new ArrayList<User>();
-		roles = new ArrayList<Role>();
-		members.add(IdMSerDB.getUserByUsername(name));
+		members.add(IdMSerDB.getUserByUsername(initmem));
 		IdMSerDB.addGroupToGroupDB(this);
 	}
 	
 	/**
-	 * Returns the user's name (not to be confused with the username).
+	 * Returns the Group's name.
 	 *
-	 * @param  url  an absolute URL giving the base location of the image
-	 * @param  name the location of the image, relative to the url argument
-	 * @return      the name of the User
+	 * @return      the name of the Group
 	 */
 	public String getName() {
 		return name;
 	}
 	
 	/**
-	 * Returns the user's name (not to be confused with the username).
+	 * Returns an ArrayList of Users containing the Group's members.
 	 *
-	 * @param  url  an absolute URL giving the base location of the image
-	 * @param  name the location of the image, relative to the url argument
-	 * @return      the name of the User
+	 * @return      the ArrayList of User's in the Group.
 	 */
 	public ArrayList<User> getMembers() {
 		return members;
 	}
 	
 	/**
-	 * Returns the user's name (not to be confused with the username).
+	 * Adds a user as a member of the Group.
 	 *
-	 * @param  url  an absolute URL giving the base location of the image
-	 * @param  name the location of the image, relative to the url argument
-	 * @return      the name of the User
+	 * @param  user  The User object to be added to the Group.
+	 * @see User
 	 */
 	public void addMember(User user) {
 		members.add(user);
 	}
 	
 	/**
-	 * Returns the user's name (not to be confused with the username).
+	 * Removes a User member from the group.
 	 *
-	 * @param  url  an absolute URL giving the base location of the image
-	 * @param  name the location of the image, relative to the url argument
-	 * @return      the name of the User
+	 *@param  user  The User object to be removed from the Group.
+	 *@see User
 	 */
 	public void removeMember(User user) {
 		members.remove(user);
 	}
 	
 	/**
-	 * Returns the user's name (not to be confused with the username).
+	 * Adds a role to the Group.
 	 *
-	 * @param  url  an absolute URL giving the base location of the image
-	 * @param  name the location of the image, relative to the url argument
-	 * @return      the name of the User
+	 * @param  role  The Role object to be added to the Group.
+	 * @see Domain
 	 */
-	public void addRole(Role role) {
+	public void addRole(Domain role) {
 		roles.add(role);
 	}
 	
 	/**
-	 * Returns the user's name (not to be confused with the username).
+	 * Removes a role from the Group.
 	 *
-	 * @param  url  an absolute URL giving the base location of the image
-	 * @param  name the location of the image, relative to the url argument
-	 * @return      the name of the User
+	 * @param  role  The Role object to be removed from the Group.
+	 * @see Domain
 	 */
-	public void removeRole(Role role) {
+	public void removeRole(Domain role) {
 		roles.remove(role);
 	}
 
