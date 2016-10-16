@@ -110,5 +110,34 @@ public class IdMSerDB {
 		roleDB.remove(role);
 	}	
 	
+	/**
+	 * Returns the UserDB ArrayList (ArrayList of all User objects).
+	 *
+	 * @return  An ArrayList of all Users created.
+	 * @see User
+	 */
+	public static ArrayList<User> getUserDB() {
+		return userDB;
+	}
+	
+	/**
+	 * Returns the GroupDB ArrayList (ArrayList of all Group objects).
+	 *
+	 * @return  An ArrayList of all Groups created.
+	 * @see Group
+	 */
+	public static ArrayList<Group> getGroupDB() {
+		return groupDB;
+	}
+	
+	/**
+	 * Returns the RoleDB ArrayList (ArrayList of all Role objects).
+	 *
+	 * @return  An ArrayList of all Roles created.
+	 * @see Role
+	 */
+	public static ArrayList<Role> getRoleDB() {
+		return roleDB;
+	}
 
 }

@@ -122,4 +122,14 @@ public class User {
 	public void removeRole(Role role) {
 		roles.remove(role);
 	}
+	
+	/**
+	 * Returns the User's Roles.
+	 *
+	 * @return      an ArrayList of Roles that the user has been assigned individually.
+	 * @see Role
+	 */
+	public ArrayList<Role> getRoles() {
+		return roles;
+	}
 }

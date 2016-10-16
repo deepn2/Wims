@@ -1,5 +1,7 @@
 package com.group4inc.wims.idm;
 
+import java.util.ArrayList;
+
 /**
 * Role Object.
 * 
@@ -34,6 +36,28 @@ public class Role {
 	 */
 	public String getName() {
 		return name;
+	}
+	
+	/**
+	 * Returns an ArrayList of **individual** Users with the role. 
+	 *
+	 * @return      the ArrayList of Users with the role.
+	 */
+	public ArrayList<User> getUsersWithRole() {
+		ArrayList<User> out = new ArrayList<User>();
+		//
+		return out;
+	}
+	
+	/**
+	 * Returns an ArrayList of Groups with the role. 
+	 *
+	 * @return      the ArrayList of Groups with the role.
+	 */
+	public ArrayList<Group> getGroupsWithRole() {
+		ArrayList<Group> out = new ArrayList<Group>();
+		//
+		return out;
 	}
 
 }
