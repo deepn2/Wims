@@ -13,15 +13,15 @@ import com.group4inc.wims.idm.User;
 public class Notification {
 	
 	/**The name of the notification (e.g. remindDean) */
-	String name;
+	private String name;
 	/**The User who needs the notification (e.g. dean) */
-	User user;
+	private User user;
 	/**The amount of time to wait in seconds prior to sending a reminder email (e.g. 259200) */
-	Long secToWait;
+	private Long secToWait;
 	/**The subject of the notification email (e.g. Reminder!) */
-	String subject;
+	private String subject;
 	/**The body of the notification email (e.g. Hello, Remember to approve or deny a request!) */
-	String body;
+	private String body;
 	
 	/**
 	 * Constructor for Notification objects.
@@ -36,6 +36,85 @@ public class Notification {
 		
 	}
 	
+	/**
+	 * Returns the name of the notification.
+	 * @return  the name of the notification
+	 */
+	public String getName() {
+		return name;
+	}
+	/**
+	 * Sets the name of the notification.
+	 * @param name  new name of the notification
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	/**
+	 * Returns the User object who needs the notification. 
+	 * @return  the User object who needs the notification
+	 */
+	public User getUser() {
+		return user;
+	}
+	
+	/**
+	 * Sets the User object who needs the notification.
+	 * @param user  new User object of the notification
+	 */
+	public void setUser(User user) {
+		this.user = user;
+	}
+	
+	/**
+	 * Returns the amount of time to wait prior to sending the reminder email.
+	 * @return  the Long of the amount of time to wait
+	 */
+	public Long getSecToWait() {
+		return secToWait;
+	}
+
+	/**
+	 * Sets the amount of time to wait prior to sending the reminder email.
+	 * @param secToWait  new amount of time to wait
+	 */
+	public void setSecToWait(Long secToWait) {
+		this.secToWait = secToWait;
+	}
+	
+	/**
+	 * Returns the subject of the email.
+	 * @return  the String subject line of the email
+	 */
+	public String getSubject() {
+		return subject;
+	}
+	
+	/**
+	 * Sets the subject of the email.
+	 * @param subject  new String subject line of the email
+	 */
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
+	
+	/**
+	 * Returns the body of the email.
+	 * @return  the body of the email
+	 */
+	public String getBody() {
+		return body;
+	}
+	
+	/**
+	 * Sets the body of the email.
+	 * @param body  new String body of the email
+	 */
+	public void setBody(String body) {
+		this.body = body;
+	}
+
 	/**
 	 * Sends a reminder email to the user after the waiting period defined in secToWait.
 	 *
