@@ -1,6 +1,9 @@
 package com.group4inc.wims.idm;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import com.group4inc.wims.workflow.WorkflowTemplate;
 
 /**
 * Domain Object.
@@ -17,6 +20,7 @@ public class Domain {
 	
 	/**the name of the Role (e.g. all_overriders)*/
 	private String name;
+	private List<WorkflowTemplate> workflowTemplates;
 	
 	
 	/**
