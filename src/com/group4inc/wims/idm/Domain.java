@@ -3,7 +3,7 @@ package com.group4inc.wims.idm;
 import java.util.ArrayList;
 
 /**
-* Role Object.
+* Domain Object.
 * 
 * <P>This class defines Roles in the context of WIMS.
 * 
