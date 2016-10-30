@@ -132,8 +132,8 @@ public class IdMSerDB {
 	 * @param  role  The Role object to be removed from the RoleDB
 	 * @see Domain
 	 */
-	public static void removeRoleFromRoleDB(Domain role) {
-		domainDB.remove(role);
+	public static void removeDomainFromDomainDB(Domain domain) {
+		domainDB.remove(domain);
 	}	
 	
 	/**

@@ -8,9 +8,9 @@ import com.group4inc.wims.workflow.WorkflowTemplate;
 /**
 * Domain Object.
 * 
-* <P>This class defines Roles in the context of WIMS.
+* <P>This class defines Domains in the context of WIMS.
 * 
-* <P>Roles are a way to give users permissions. A role can be assigned to a user in two different ways; one by direct assignment to the User object and the other by group assignment. For example, if a user is a member of the "overriders" group then they and all other members of the group could be assigned the "all_overriders" role in one assignment instead of individual assignment.
+* <P>A user is part of a Domain, which is the shared "instance" of WIMS for all users who are a part of the user's organization
 * 
 * @see User
 * @see Group
@@ -18,15 +18,15 @@ import com.group4inc.wims.workflow.WorkflowTemplate;
 */
 public class Domain {
 	
-	/**the name of the Role (e.g. all_overriders)*/
+	/**the name of the Domain (e.g. all_overriders)*/
 	private String name;
 	private List<WorkflowTemplate> workflowTemplates;
 	
 	
 	/**
-	 * Constructor for Role objects.
+	 * Constructor for Domain objects.
 	 *
-	 * @param  name the name of the Role to be constructed
+	 * @param  name the name of the Domain to be constructed
 	 */
 	public Domain(String name) {
 		name = this.name;
@@ -34,18 +34,18 @@ public class Domain {
 	}
 	
 	/**
-	 * Returns the Role's name.
+	 * Returns the Domain's name.
 	 *
-	 * @return      the name of the Role
+	 * @return      the name of the Domain
 	 */
 	public String getName() {
 		return name;
 	}
 	
 	/**
-	 * Returns an ArrayList of **individual** Users with the role. 
+	 * Returns an ArrayList of **individual** Users that are members of the Domain. 
 	 *
-	 * @return      the ArrayList of Users with the role.
+	 * @return      the ArrayList of Users in the Domain.
 	 */
 	public ArrayList<User> getUsersInDomain() {
 		ArrayList<User> out = new ArrayList<User>();

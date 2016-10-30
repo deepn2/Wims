@@ -56,7 +56,7 @@ public class User {
 	 *
 	 * @param  name the new name of the User
 	 */
-	public void changeName(String name) {
+	public void setName(String name) {
 		name = this.name;
 	}
 
@@ -74,7 +74,7 @@ public class User {
 	 *
 	 * @param  email the new email of the User
 	 */
-	public void changeEmail(String email) {
+	public void setEmail(String email) {
 		email = this.email;
 	}
 
@@ -101,7 +101,7 @@ public class User {
 	 *
 	 * @param  password  the new password to be set for the User
 	 */
-	public void changePassword(String password) {
+	public void setPassword(String password) {
 		password = this.password;
 	}
 	
@@ -121,7 +121,7 @@ public class User {
 	 * @param  domain  The Domain object that the User is being removed from.
 	 * @see Domain
 	 */
-	public void removeRole(Domain domain) {
+	public void removeDomain(Domain domain) {
 		domains.remove(domain);
 	}
 	
