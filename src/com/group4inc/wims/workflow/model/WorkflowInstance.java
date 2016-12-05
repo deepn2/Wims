@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONObject;
-
 import com.group4inc.wims.workflow.fsm.WorkflowStateMachine;
 
 /**
