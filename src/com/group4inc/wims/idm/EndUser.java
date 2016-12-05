@@ -2,7 +2,7 @@ package com.group4inc.wims.idm;
 
 import java.util.List;
 
-import com.group4inc.wims.workflow.WorkflowInstance;
+import com.group4inc.wims.workflow.model.WorkflowInstance;
 
 public class EndUser extends User {
 

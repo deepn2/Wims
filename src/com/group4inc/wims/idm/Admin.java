@@ -2,7 +2,7 @@ package com.group4inc.wims.idm;
 
 import java.util.List;
 
-import com.group4inc.wims.workflow.WorkflowTemplate;
+import com.group4inc.wims.workflow.model.WorkflowTemplate;
 
 public class Admin extends User {
 	
