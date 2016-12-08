@@ -1,6 +1,7 @@
 package com.group4inc.wims.idm;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
 * Object to act as a database for the Identiy Management portion of the program.
@@ -16,13 +17,15 @@ public class IdMSerDB {
 	
 	/**the ArrayList containing all User objects created.
 	 * @see User*/
-	private static ArrayList<User> userDB = new ArrayList<User>();
+	private static Map<String, User> userDB = new HashMap<String, User>();
 	/**the ArrayList containing all Group objects created.
 	 * @see Group*/
-	private static ArrayList<Group> groupDB = new ArrayList<Group>();
+	private static Map<String, Group> groupDB = new HashMap<String, Group>();
 	/**the ArrayList containing all Role objects created.
 	 * @see Domain*/
-	private static ArrayList<Domain> domainDB = new ArrayList<Domain>();
+	private static Map<String, Domain> domainDB = new HashMap<String, Domain>();
+	/**the User object that stores the current active User of the program**/
+	private static User activeUser;
 	
 	/**
 	 * Adds a User object to the UserDB (ArrayList of User objects).
@@ -31,7 +34,8 @@ public class IdMSerDB {
 	 * @see User
 	 */
 	public static void addUserToUserDB(User user) {
-		userDB.add(user);
+		if(user != null)
+			userDB.put(user.getUsername(), user);
 	}
 	
 	/**
@@ -41,9 +45,34 @@ public class IdMSerDB {
 	 * @see User
 	 */
 	public static void removeUserFromUserDB(User user) {
-		userDB.remove(user);
+		userDB.remove(user.getUsername());
 	}
 	
+	/**
+	 * Returns the User object that has the unique username passed in the parameters of the method.
+	 * 
+	 * @param username The username of the User to be retrieved
+	 * @param password The password of the User to be retrieved
+	 */
+	public static User getUser(String username, String password) {
+		User out = null;
+		
+		User possible = userDB.get(username);
+		if(possible != null) {
+			if(PasswordOps.comparePasswords(possible.getPassword(), password))
+				out = possible;
+		}
+		
+		return out;	
+	}
+	
+	public static User getActiveUser() {
+		return activeUser;
+	}
+	
+	public static void setActiveUser(User user) {
+		activeUser = user;
+	}
 	/**
 	 * Returns a User object after searching by the User's username property. Will return NULL if no match is found, case-sensitive search!
 	 *
@@ -52,22 +81,7 @@ public class IdMSerDB {
 	 * @see User
 	 */
 	public static User getUserByUsername(String username) {
-		boolean found = false;
-		int i = 0;
-		User out = null;
-		
-		while(!found) {
-			if(userDB.get(i).getUsername().equals(username)) {
-				out = userDB.get(i);
-				found = true;
-			}
-			
-			else {
-				i++;
-			}
-		}
-		
-		return out;
+		return userDB.get(username);
 	}
 	
 	/**
@@ -78,22 +92,7 @@ public class IdMSerDB {
 	 * @see User
 	 */
 	public static Domain getDomainByName(String domainname) {
-		boolean found = false;
-		int i = 0;
-		Domain out = null;
-		
-		while(!found) {
-			if(domainDB.get(i).getName().equals(domainname)) {
-				out = domainDB.get(i);
-				found = true;
-			}
-			
-			else {
-				i++;
-			}
-		}
-		
-		return out;
+		return domainDB.get(domainname);
 	}
 	
 	/**
@@ -103,7 +102,8 @@ public class IdMSerDB {
 	 * @see Group
 	 */
 	public static void addGroupToGroupDB(Group group) {
-		groupDB.add(group);
+		if(group != null)
+			groupDB.put(group.getName(), group);
 	}
 	
 	/**
@@ -113,17 +113,17 @@ public class IdMSerDB {
 	 * @see Group
 	 */
 	public static void removeGroupFromGroupDB(Group group) {
-		groupDB.remove(group);
+		groupDB.remove(group.getName());
 	}
 	
 	/**
-	 * Adds a Role object to the RoleDB (ArrayList of Role objects).
+	 * Adds a Domain object to the DomainDB (ArrayList of Role objects).
 	 *
-	 * @param  role  The Role object to be added to the RoleDB
+	 * @param  domain  The Domain object to be added to the DomainDB
 	 * @see Domain
 	 */
 	public static void addDomainToDomainDB(Domain domain) {
-		domainDB.add(domain);
+		domainDB.put(domain.getName(), domain);
 	}
 	
 	/**
@@ -133,7 +133,7 @@ public class IdMSerDB {
 	 * @see Domain
 	 */
 	public static void removeDomainFromDomainDB(Domain domain) {
-		domainDB.remove(domain);
+		domainDB.remove(domain.getName());
 	}	
 	
 	/**
@@ -142,7 +142,7 @@ public class IdMSerDB {
 	 * @return  An ArrayList of all Users created.
 	 * @see User
 	 */
-	public static ArrayList<User> getUserDB() {
+	public static Map<String, User> getUserDB() {
 		return userDB;
 	}
 	
@@ -152,7 +152,7 @@ public class IdMSerDB {
 	 * @return  An ArrayList of all Groups created.
 	 * @see Group
 	 */
-	public static ArrayList<Group> getGroupDB() {
+	public static Map<String, Group> getGroupDB() {
 		return groupDB;
 	}
 	
@@ -162,7 +162,7 @@ public class IdMSerDB {
 	 * @return  An ArrayList of all Roles created.
 	 * @see Domain
 	 */
-	public static ArrayList<Domain> getDomainDB() {
+	public static Map<String, Domain> getDomainDB() {
 		return domainDB;
 	}
 

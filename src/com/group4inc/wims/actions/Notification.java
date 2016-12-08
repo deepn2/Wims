@@ -1,5 +1,8 @@
 package com.group4inc.wims.actions;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
+
 import com.group4inc.wims.idm.User;
 
 /**
@@ -68,7 +71,7 @@ public class Notification {
 	 * @param user  new User object of the notification
 	 */
 	public void setUser(User user) {
-		if(com.group4inc.wims.idm.IdMSerDB.getUserDB().contains(user))
+		if(com.group4inc.wims.idm.IdMSerDB.getUserDB().containsValue(user))
 			this.user = user;
 	}
 	
@@ -125,17 +128,31 @@ public class Notification {
 	 *
 	 * @return  If the operation completed successfully. TRUE if completed successfully and FALSE is there were errors.
 	 */
-	public boolean sendInitial() {
-		return Email.sendInitialEmail(user.getEmail(), subject, body);
+	public void sendInitial() {
+		try {
+			Email.sendInitialEmail(user.getEmail(), subject, body);
+		} catch (AddressException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	/**
 	 * Sends a reminder email to the user after the waiting period defined in secToWait.
-	 *
-	 * @return  If the operation completed successfully. TRUE if completed successfully and FALSE is there were errors.
 	 */
-	public boolean sendReminder() {
-		return Email.sendReminderEmail(user.getEmail(), subject, body);
+	public void sendReminder() {
+		try {
+			Email.sendReminderEmail(user.getEmail(), subject, body);
+		} catch (AddressException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
