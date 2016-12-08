@@ -31,7 +31,7 @@ public class Email {
 	 * @return  If the operation completed successfully. TRUE if completed successfully and FALSE is there were errors.
 	 */
 	
-	public static void sendEmail(String emailAddress, String subject, String body) throws AddressException, MessagingException {
+	private static void sendEmail(String emailAddress, String subject, String body) throws AddressException, MessagingException {
 		//this method largely influenced by http://crunchify.com/java-mailapi-example-send-an-email-via-gmail-smtp/
 		
 		//set up mail server properties

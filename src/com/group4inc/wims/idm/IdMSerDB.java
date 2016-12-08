@@ -34,7 +34,7 @@ public class IdMSerDB {
 	 * @see User
 	 */
 	public static void addUserToUserDB(User user) {
-		if(user != null)
+		if(user != null && userDB.get(user.getName())==null)
 			userDB.put(user.getUsername(), user);
 	}
 	
@@ -102,7 +102,7 @@ public class IdMSerDB {
 	 * @see Group
 	 */
 	public static void addGroupToGroupDB(Group group) {
-		if(group != null)
+		if(group != null && groupDB.get(group.getName())==null)
 			groupDB.put(group.getName(), group);
 	}
 	
@@ -123,7 +123,8 @@ public class IdMSerDB {
 	 * @see Domain
 	 */
 	public static void addDomainToDomainDB(Domain domain) {
-		domainDB.put(domain.getName(), domain);
+		if(domain != null && domainDB.get(domain.getName())==null)
+			domainDB.put(domain.getName(), domain);
 	}
 	
 	/**

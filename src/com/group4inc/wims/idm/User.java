@@ -113,7 +113,9 @@ public class User {
 	 * @see Domain
 	 */
 	public void addDomain(Domain domain) {
-		domains.put(domain.getName(), domain);
+		if(IdMSerDB.getDomainDB().containsValue(domain))
+			if(!domain.getUsersInDomain().contains(this))
+				domains.put(domain.getName(), domain);
 	}
 	
 	/**
