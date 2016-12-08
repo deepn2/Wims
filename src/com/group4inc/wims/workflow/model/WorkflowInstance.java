@@ -1,7 +1,10 @@
-package com.group4inc.wims.workflow;
+package com.group4inc.wims.workflow.model;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
+
+import com.group4inc.wims.workflow.fsm.WorkflowStateMachine;
 
 /**
  * This class represents an instance of a workflow from a workflow template.
@@ -11,9 +14,9 @@ import java.util.List;
  * @author crejaud
  */
 public class WorkflowInstance implements Serializable {
-	private JSONObject metadata;
+	private Map<String, Object> metadata;
 	private WorkflowStateMachine fsm;
-	private List<Integer> currentStates;
+	private List<String> currentStates;
 	
 	/**
 	 * The constructor for a workflow instance.
@@ -23,7 +26,23 @@ public class WorkflowInstance implements Serializable {
 	 * @param fsm - The workflow state machine
 	 */
 	public WorkflowInstance(WorkflowStateMachine fsm) {
-		// ...
+		this.fsm = fsm;
+	}
+	
+	public Map<String, Object> getMetadata() {
+		return metadata;
+	}
+	
+	public void setMetadata(Map<String, Object> metadata) {
+		this.metadata = metadata;
+	}
+	
+	public List<String> getCurrentStates() {
+		return currentStates;
+	}
+	
+	public void setCurrentStates(List<String> currentStates) {
+		this.currentStates = currentStates;
 	}
 	
 	/**
