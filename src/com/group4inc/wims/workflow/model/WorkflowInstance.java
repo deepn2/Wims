@@ -17,6 +17,7 @@ public class WorkflowInstance implements Serializable {
 	private Map<String, Object> metadata;
 	private WorkflowStateMachine fsm;
 	private List<String> currentStates;
+	private boolean active;
 	
 	/**
 	 * The constructor for a workflow instance.
@@ -52,5 +53,13 @@ public class WorkflowInstance implements Serializable {
 	 */
 	public void overrideState() {
 		// ...
+	}
+	
+	public void setActiveState(boolean sta) {
+		active = sta;
+	}
+	
+	public boolean getActiveState() {
+		return active;
 	}
 }

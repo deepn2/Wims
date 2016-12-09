@@ -93,6 +93,19 @@ public class WorkflowTemplate implements Serializable {
 		}
 	}
 	
+	public boolean removeWorkflowInstance(String username, WorkflowInstance toRemove) {
+		if(!isOwner(username)) {
+			return false;
+		}
+		
+		else if(ownersToWorkflowInstances.get(username).contains(toRemove)) {
+			return ownersToWorkflowInstances.get(username).remove(toRemove);
+		}
+		
+		return false;
+		
+	}
+	
 	public boolean isOwner(String username) {
 		String role = usersToRoles.get(username);
 		
