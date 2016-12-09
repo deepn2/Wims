@@ -19,10 +19,11 @@ public class WorkflowDone {
 	 *
 	 * @return  If the operation completed successfully. TRUE if completed successfully and FALSE is there were errors.
 	 */
-	public static boolean clearWorkflowData(String username, WorkflowInstance workflow) {
-		WorkflowTemplate.removeWorkflowInstance(username, workflow);
+	public static boolean clearWorkflowData(String username, WorkflowInstance workflow, WorkflowTemplate wft) {
+		boolean out = false;
+		out = wft.removeWorkflowInstance(username, workflow);
 		workflow = null;
-		return true;
+		return out;
 	}
 	
 	/**
@@ -30,8 +31,9 @@ public class WorkflowDone {
 	 *
 	 * @return  If the operation completed successfully. TRUE if completed successfully and FALSE is there were errors.
 	 */
-	public static boolean archiveWorkflow(Workflow workflow) {
-		return true;
+	public static boolean archiveWorkflow(WorkflowInstance workflow) {
+		workflow.setActiveState(false);
+		return workflow.getActiveState();
 	}
 
 }
