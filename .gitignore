@@ -1,5 +1,10 @@
 /bin/
 
+# Eclipse generated files
+####################
+.classpath
+.project
+
 # Compiled source #
 ###################
 *.com
