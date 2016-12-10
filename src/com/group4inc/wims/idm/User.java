@@ -1,6 +1,7 @@
 package com.group4inc.wims.idm;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
 * User Object.
@@ -22,7 +23,7 @@ public class User {
 	/**the password of the User. NOTE: This is stored in plaintext*/
 	private String password;
 	/**the domains that the User belongs to*/
-	private ArrayList<Domain> domains = new ArrayList<Domain>();
+	private Map<String, Domain> domains = new HashMap<String, Domain>();
 
 	/**
 	 * Constructor for User objects.
@@ -34,11 +35,11 @@ public class User {
 	 * @param  initdomain the initial domain that the user is a part of
 	 */
 	public User(String name, String email, String username, String password, String initdomain) {
-		name = this.name;
-		email = this.email;
-		username = this.username;
-		password = this.password;
-		domains.add(IdMSerDB.getDomainByName(initdomain));
+		this.name = name;
+		this.email = email;
+		this.username = username;
+		this.password = PasswordOps.passwordCrypt(password);
+		domains.put(initdomain,IdMSerDB.getDomainByName(initdomain));
 		IdMSerDB.addUserToUserDB(this);
 	}
 
@@ -56,8 +57,8 @@ public class User {
 	 *
 	 * @param  name the new name of the User
 	 */
-	public void changeName(String name) {
-		name = this.name;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	/**
@@ -74,8 +75,8 @@ public class User {
 	 *
 	 * @param  email the new email of the User
 	 */
-	public void changeEmail(String email) {
-		email = this.email;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	/**
@@ -101,8 +102,8 @@ public class User {
 	 *
 	 * @param  password  the new password to be set for the User
 	 */
-	public void changePassword(String password) {
-		password = this.password;
+	public void setPassword(String password) {
+		this.password = PasswordOps.passwordCrypt(password);
 	}
 	
 	/**
@@ -112,7 +113,9 @@ public class User {
 	 * @see Domain
 	 */
 	public void addDomain(Domain domain) {
-		domains.add(domain);
+		if(IdMSerDB.getDomainDB().containsValue(domain))
+			if(!domain.getUsersInDomain().contains(this))
+				domains.put(domain.getName(), domain);
 	}
 	
 	/**
@@ -121,7 +124,7 @@ public class User {
 	 * @param  domain  The Domain object that the User is being removed from.
 	 * @see Domain
 	 */
-	public void removeRole(Domain domain) {
+	public void removeDomain(Domain domain) {
 		domains.remove(domain);
 	}
 	
@@ -131,7 +134,7 @@ public class User {
 	 * @return      an ArrayList of Domains that the user has been added to.
 	 * @see Domain
 	 */
-	public ArrayList<Domain> getDomain() {
+	public Map<String, Domain> getDomain() {
 		return domains;
 	}
 }

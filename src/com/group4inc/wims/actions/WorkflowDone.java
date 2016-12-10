@@ -1,5 +1,6 @@
 package com.group4inc.wims.actions;
-
+import com.group4inc.wims.workflow.model.WorkflowInstance;
+import com.group4inc.wims.workflow.model.WorkflowTemplate;
 
 /**
 * Actions to perform when a workflow has completed.
@@ -18,8 +19,11 @@ public class WorkflowDone {
 	 *
 	 * @return  If the operation completed successfully. TRUE if completed successfully and FALSE is there were errors.
 	 */
-	public static boolean clearWorkflowData(Workflow workflow) {
-		return true;
+	public static boolean clearWorkflowData(String username, WorkflowInstance workflow, WorkflowTemplate wft) {
+		boolean out = false;
+		out = wft.removeWorkflowInstance(username, workflow);
+		workflow = null;
+		return out;
 	}
 	
 	/**
@@ -27,8 +31,9 @@ public class WorkflowDone {
 	 *
 	 * @return  If the operation completed successfully. TRUE if completed successfully and FALSE is there were errors.
 	 */
-	public static boolean archiveWorkflow(Workflow workflow) {
-		return true;
+	public static boolean archiveWorkflow(WorkflowInstance workflow) {
+		workflow.setActiveState(false);
+		return workflow.getActiveState();
 	}
 
 }

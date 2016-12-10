@@ -1,4 +1,4 @@
-package com.group4inc.wims.workflow;
+package com.group4inc.wims.workflow.fsm;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -13,13 +13,17 @@ import javafx.scene.Scene;
  * @author crejaud
  */
 public class WorkflowState implements Serializable {
-	private Map<String, Scene> roleToScene;
+	private Map<String, Scene> rolesToScenes;
 	
 	/**
 	 * The constructor for a workflow state inside a workflow state machine
 	 * @param template - the json object that the state should follow
 	 */
-	public WorkflowState(JSONObject template) {
-		// ...
+	public WorkflowState(Map<String, Scene> rolesToScenes) {
+		this.rolesToScenes = rolesToScenes;
+	}
+	
+	public Scene getSceneForRole(String role) {
+		return rolesToScenes.get(role);
 	}
 }
