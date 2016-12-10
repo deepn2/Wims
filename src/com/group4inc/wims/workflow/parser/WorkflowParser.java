@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.json.simple.JSONArray;
@@ -22,6 +21,7 @@ import com.group4inc.wims.workflow.fsm.WorkflowState;
 import com.group4inc.wims.workflow.fsm.WorkflowStateMachine;
 import com.group4inc.wims.workflow.model.MyEntry;
 import com.group4inc.wims.workflow.model.WorkflowTemplate;
+import com.group4inc.wims.workflow.parser.WorkflowParseException;
 
 import javafx.scene.Scene;
 
@@ -29,25 +29,24 @@ public class WorkflowParser {
 	private WorkflowTemplate workflowTemplate;
 	private JSONParser parser = new JSONParser();
 	private Domain domain;
-	private List<String> errors = new ArrayList<>();
-	
+
 	public WorkflowParser(File file, Domain domain) throws FileNotFoundException, IOException, ParseException, WorkflowParseException {
 		JSONObject fileJSON = parseFileIntoJSONObject(file);
-		
+
 		// file parse successful
 		this.domain = domain;
 		this.workflowTemplate = parseJSONObjectIntoWorkflowTemplate(fileJSON);
 	}
-	
+
 	public WorkflowTemplate getWorkflowTemplate() {
 		return workflowTemplate;
 	}
-	
+
 	private JSONObject parseFileIntoJSONObject(File file) throws FileNotFoundException, IOException, ParseException {
 		JSONObject fileJSON = (JSONObject) parser.parse(new FileReader(file.getPath()));
 		return fileJSON;
 	}
-	
+
 	private WorkflowTemplate parseJSONObjectIntoWorkflowTemplate(JSONObject fileJSON) throws WorkflowParseException {
 		// parse ROLES
 		if (!fileJSON.containsKey(WorkflowLanguageGlobal.ROLES)) {
@@ -62,7 +61,7 @@ public class WorkflowParser {
 			throw new WorkflowParseException("Roles is not a valid JSONArray");
 		}
 		Map<String, String> usersToRoles = parseJSONArrayIntoUsersToRolesMap(rolesJSON);
-		
+
 		// parse OWNERS
 		if (!fileJSON.containsKey(WorkflowLanguageGlobal.OWNERS)) {
 			throw new WorkflowParseException("Owners JSONArray must be included");
@@ -76,7 +75,7 @@ public class WorkflowParser {
 			throw new WorkflowParseException("Owners is not a valid JSONArray");
 		}
 		Set<String> ownerRoles = parseJSONArrayIntoOwnersSet(ownersJSON);
-		
+
 		// parse STATES
 		if (!fileJSON.containsKey(WorkflowLanguageGlobal.STATES)) {
 			throw new WorkflowParseException("States JSONArray must be included");
@@ -90,13 +89,13 @@ public class WorkflowParser {
 			throw new WorkflowParseException("States is not a valid JSONArray");
 		}
 		WorkflowStateMachine fsm = parseJSONArrayIntoWorkflowStateMachine(statesJSON);
-		
+
 		return new WorkflowTemplate(usersToRoles, ownerRoles, fsm);
 	}
-	
+
 	private Map<String, String> parseJSONArrayIntoUsersToRolesMap(JSONArray rolesJSON) throws WorkflowParseException {
 		Map<String, String> usersToRoles = new HashMap<>();
-		
+
 		for (int roleIndex = 0; roleIndex < rolesJSON.size(); roleIndex++) {
 			Object roleObject = rolesJSON.get(roleIndex);
 			JSONObject roleJSON;
@@ -110,13 +109,13 @@ public class WorkflowParser {
 			for (Map.Entry<String, String> entry : entries)
 				usersToRoles.put(entry.getKey(), entry.getValue());
 		}
-		
+
 		return null;
 	}
-	
+
 	private List<Map.Entry<String, String>> parseJSONObjectIntoUsersToRolesEntries(JSONObject roleJSON, int roleIndex) throws WorkflowParseException {
 		List<Map.Entry<String, String>> entries = new ArrayList<>();
-		
+
 		if (!roleJSON.containsKey(WorkflowLanguageGlobal.ROLE)) {
 			throw new WorkflowParseException("Role " + roleIndex + " is missing role keyword.");
 		}
@@ -128,7 +127,7 @@ public class WorkflowParser {
 		} else {
 			throw new WorkflowParseException("Role " + roleIndex + " has invalid String role");
 		}
-		
+
 		if (!roleJSON.containsKey(WorkflowLanguageGlobal.USERNAMES)) {
 			throw new WorkflowParseException("Role " + roleIndex + " is missing usernames keyword.");
 		}
@@ -140,7 +139,7 @@ public class WorkflowParser {
 		} else {
 			throw new WorkflowParseException("Role " + roleIndex + " has invalid usernames JSONArray");
 		}
-		
+
 		// add entries to list
 		for (int usernameIndex = 0; usernameIndex < usernamesJSON.size(); usernameIndex++) {
 			Object usernameObj = usernamesJSON.get(usernameIndex);
@@ -153,13 +152,13 @@ public class WorkflowParser {
 			Map.Entry<String, String> entry = new MyEntry<String, String>(username, role);
 			entries.add(entry);
 		}
-		
+
 		return entries;
 	}
-	
+
 	private Set<String> parseJSONArrayIntoOwnersSet(JSONArray ownersJSON) throws WorkflowParseException {
 		Set<String> ownerRoles = new HashSet<String>();
-		
+
 		for (int ownerIndex = 0; ownerIndex < ownersJSON.size(); ownerIndex++) {
 			Object roleObj = ownersJSON.get(ownerIndex);
 			String role;
@@ -170,13 +169,13 @@ public class WorkflowParser {
 			}
 			ownerRoles.add(role);
 		}
-		
+
 		return ownerRoles;
 	}
-	
+
 	private WorkflowStateMachine parseJSONArrayIntoWorkflowStateMachine(JSONArray statesJSON) throws WorkflowParseException {
 		Map<String, WorkflowState> idsToWorkflowStates = new HashMap<>();
-		
+
 		for(int stateIndex = 0; stateIndex < statesJSON.size(); stateIndex++) {
 			Object stateObj = statesJSON.get(stateIndex);
 			JSONObject stateJSON;
@@ -190,7 +189,7 @@ public class WorkflowParser {
 		}
 		return null;
 	}
-	
+
 	private Map.Entry<String, WorkflowState> parseJSONObjectIntoWorkflowState(JSONObject stateJSON, int stateIndex) throws WorkflowParseException {
 		if (!stateJSON.containsKey(WorkflowLanguageGlobal.ID)) {
 			throw new WorkflowParseException("State " + stateIndex + " is missing id keyword.");
@@ -202,7 +201,7 @@ public class WorkflowParser {
 		} else {
 			throw new WorkflowParseException("State " + stateIndex + " id is not of type String.");
 		}
-		
+
 		if (!stateJSON.containsKey(WorkflowLanguageGlobal.SCENES)) {
 			throw new WorkflowParseException("State " + stateIndex + " is missing scenes keyword.");
 		}
@@ -213,26 +212,27 @@ public class WorkflowParser {
 		} else {
 			throw new WorkflowParseException("State " + stateIndex + " scenes are not of type JSONArray.");
 		}
-		
+
 		Map<String, Scene> rolesToScenes = new HashMap<>();
-		
+
 		for (int sceneIndex = 0; sceneIndex < scenesJSON.size(); sceneIndex++) {
 			Object sceneObj = scenesJSON.get(sceneIndex);
 			JSONObject sceneJSON;
 			if (sceneObj instanceof JSONObject) {
 				sceneJSON = (JSONObject) sceneObj;
 			} else {
-				throw new WorkflowParseException("scene " + sceneIndex + " of state " + stateIndex + " is an invalid JSONObject");
+				throw new WorkflowParseException("Scene " + sceneIndex + " of state " + stateIndex + " is an invalid JSONObject");
 			}
 			Map.Entry<String, Scene> entry = parseJSONObjectIntoScene(sceneJSON, stateIndex, sceneIndex);
 			rolesToScenes.put(entry.getKey(), entry.getValue());
 		}
-		
+
 		return new MyEntry<>(id, new WorkflowState(rolesToScenes));
 	}
-	
-	private Map.Entry<String, Scene> parseJSONObjectIntoScene(JSONObject sceneJSON, int stateIndex, int sceneIndex) {
-		//TODO
-		return null;
+
+	private Map.Entry<String, Scene> parseJSONObjectIntoScene(JSONObject sceneJSON, int stateIndex, int sceneIndex) throws WorkflowParseException {
+		WorkflowSceneParser sceneParser = new WorkflowSceneParser(sceneJSON, stateIndex, sceneIndex);
+
+		return sceneParser.getSceneEntry();
 	}
 }
