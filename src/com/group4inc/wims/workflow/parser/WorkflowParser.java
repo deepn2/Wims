@@ -42,11 +42,27 @@ public class WorkflowParser {
 		return workflowTemplate;
 	}
 
+	/**
+	 * Parse the file into a JSONObject.
+	 * 
+	 * @param file						the file
+	 * @return							a JSONObject
+	 * @throws FileNotFoundException	if the file is not found
+	 * @throws IOException				if the file is locked or inaccessible
+	 * @throws ParseException			if the file cannot be parsed into a JSONObject
+	 */
 	private JSONObject parseFileIntoJSONObject(File file) throws FileNotFoundException, IOException, ParseException {
 		JSONObject fileJSON = (JSONObject) parser.parse(new FileReader(file.getPath()));
 		return fileJSON;
 	}
 
+	/**
+	 * Parse a JSONObject into a WorkflowTemplate.
+	 * 
+	 * @param fileJSON					the JSONObject representing a WorkflowTemplate
+	 * @return							a WorkflowTemplate
+	 * @throws WorkflowParseException	if the JSONObject does not fully represent a WorkflowTemplate
+	 */
 	private WorkflowTemplate parseJSONObjectIntoWorkflowTemplate(JSONObject fileJSON) throws WorkflowParseException {
 		// parse ROLES
 		if (!fileJSON.containsKey(WorkflowLanguageGlobal.ROLES)) {
@@ -93,6 +109,13 @@ public class WorkflowParser {
 		return new WorkflowTemplate(usersToRoles, ownerRoles, fsm);
 	}
 
+	/**
+	 * Parse a JSONArray into the usersToRoles mapping.
+	 * 
+	 * @param rolesJSON					the JSONArray representing roles
+	 * @return							the usersToRoles mapping
+	 * @throws WorkflowParseException	if the JSONArray does not fully represent the roles mapping
+	 */
 	private Map<String, String> parseJSONArrayIntoUsersToRolesMap(JSONArray rolesJSON) throws WorkflowParseException {
 		Map<String, String> usersToRoles = new HashMap<>();
 
@@ -113,6 +136,14 @@ public class WorkflowParser {
 		return null;
 	}
 
+	/**
+	 * Parse a JSONObject into a map entries for the usersToRoles mapping.
+	 * 
+	 * @param roleJSON					the JSONObject representing the map entry
+	 * @param roleIndex					the index of the role for error message displaying reasons
+	 * @return							the list of map entry
+	 * @throws WorkflowParseException	if the JSONObject does not fully represent the map entries
+	 */
 	private List<Map.Entry<String, String>> parseJSONObjectIntoUsersToRolesEntries(JSONObject roleJSON, int roleIndex) throws WorkflowParseException {
 		List<Map.Entry<String, String>> entries = new ArrayList<>();
 
@@ -156,6 +187,13 @@ public class WorkflowParser {
 		return entries;
 	}
 
+	/**
+	 * Parse a JSONArray into the set of Owners.
+	 * 
+	 * @param ownersJSON				the JSONArray representing the owner roles
+	 * @return							the set of owner roles
+	 * @throws WorkflowParseException	if the JSONArray does not fully represent the owner roles
+	 */
 	private Set<String> parseJSONArrayIntoOwnersSet(JSONArray ownersJSON) throws WorkflowParseException {
 		Set<String> ownerRoles = new HashSet<String>();
 
@@ -173,6 +211,13 @@ public class WorkflowParser {
 		return ownerRoles;
 	}
 
+	/**
+	 * Parse JSONArray into a WorkflowStateMachine.
+	 * 
+	 * @param statesJSON				the JSONArray representing states
+	 * @return							the WorkflowStateMachine
+	 * @throws WorkflowParseException	if the JSONArray does not fully represent the states
+	 */
 	private WorkflowStateMachine parseJSONArrayIntoWorkflowStateMachine(JSONArray statesJSON) throws WorkflowParseException {
 		Map<String, WorkflowState> idsToWorkflowStates = new HashMap<>();
 
@@ -190,6 +235,14 @@ public class WorkflowParser {
 		return null;
 	}
 
+	/**
+	 * Parse JSONObject into a WorkflowState.
+	 * 
+	 * @param stateJSON					the JSONObject representing a state
+	 * @param stateIndex				the index of the state in the list of states
+	 * @return							the entry of the workflow state where the key is the id
+	 * @throws WorkflowParseException	if the state or id does not exist or is of the wrong format
+	 */
 	private Map.Entry<String, WorkflowState> parseJSONObjectIntoWorkflowState(JSONObject stateJSON, int stateIndex) throws WorkflowParseException {
 		if (!stateJSON.containsKey(WorkflowLanguageGlobal.ID)) {
 			throw new WorkflowParseException("State " + stateIndex + " is missing id keyword.");
@@ -230,6 +283,15 @@ public class WorkflowParser {
 		return new MyEntry<>(id, new WorkflowState(rolesToScenes));
 	}
 
+	/**
+	 * Parse a JSONObject into a Scene.
+	 * 
+	 * @param sceneJSON					the JSONObject representing a Scene
+	 * @param stateIndex				the state index
+	 * @param sceneIndex				the scene index
+	 * @return							the javafx scene
+	 * @throws WorkflowParseException	if the JSONObject does not fully represent the Scene
+	 */
 	private Map.Entry<String, Scene> parseJSONObjectIntoScene(JSONObject sceneJSON, int stateIndex, int sceneIndex) throws WorkflowParseException {
 		WorkflowSceneParser sceneParser = new WorkflowSceneParser(sceneJSON, stateIndex, sceneIndex);
 

@@ -55,22 +55,38 @@ class WorkflowSceneParser {
 			WorkflowLanguageGlobal.BUTTONS
 	};
 	
+	/**
+	 * A subparser class for WorkflowParser.
+	 * 
+	 * Parses a JSONObject which is supposed to represent a scene, into a Scene javafx class.
+	 * @param sceneJSON					JSONObject representing the scene
+	 * @param stateIndex				the state index
+	 * @param sceneIndex				the scene index
+	 * @throws WorkflowParseException	sceneJSON does not fully represent a scene
+	 */
 	public WorkflowSceneParser(JSONObject sceneJSON, int stateIndex, int sceneIndex) throws WorkflowParseException {
 		// store stateIndex and sceneIndex to remove redundancy of continuously sending it to all methods
 		this.stateIndex = stateIndex;
 		this.sceneIndex = sceneIndex;
 		
 		// get the role string
-		String role = getRoleFromJSONObject(sceneJSON);
+		String role = parseRoleFromJSONObject(sceneJSON);
 		
 		// get the scene
-		Scene scene = getSceneFromJSONObject(sceneJSON);
+		Scene scene = parseSceneFromJSONObject(sceneJSON);
 		
 		// make the entry!
 		entry = new MyEntry<>(role, scene);
 	}
 	
-	private String getRoleFromJSONObject(JSONObject sceneJSON) throws WorkflowParseException {
+	/**
+	 * Get the role from a scene JSONObject.
+	 * 
+	 * @param sceneJSON					JSONObject representing the scene
+	 * @return							role string
+	 * @throws WorkflowParseException	sceneJSON does not fully represent a scene
+	 */
+	private String parseRoleFromJSONObject(JSONObject sceneJSON) throws WorkflowParseException {
 		Object roleObj = sceneJSON.get(WorkflowLanguageGlobal.ROLE);
 		String role;
 		if (roleObj instanceof String) {
@@ -81,57 +97,86 @@ class WorkflowSceneParser {
 		return role;
 	}
 	
-	private Scene getSceneFromJSONObject(JSONObject sceneJSON) throws WorkflowParseException {
+	/**
+	 * Get the javafx scene from the JSONObject.
+	 * 
+	 * @param sceneJSON					JSONObject representing the scene
+	 * @return							javafx scene
+	 * @throws WorkflowParseException	sceneJSON does not fully represent a scene
+	 */
+	private Scene parseSceneFromJSONObject(JSONObject sceneJSON) throws WorkflowParseException {
 		GridPane pane = new GridPane();
 		
 		// set all nodes to the pane at appropriate x/y coordinate
 		for (String nodeType : NODE_TYPES)
-			setNodesFromJSONObject(sceneJSON, nodeType, pane);
+			parseNodesFromJSONObject(sceneJSON, nodeType, pane);
 		
 		Scene scene = new Scene(pane, 200, 200);
 		return scene;
 	}
 	
-	private void setNodesFromJSONObject(JSONObject sceneJSON, String nodeType, GridPane pane) throws WorkflowParseException {
+	/**
+	 * A general method to simplify code.
+	 * 
+	 * Finds the buttons, texts, textfields, etc (Nodes) from the JSONObject
+	 * and creates them.
+	 * 
+	 * @param sceneJSON					JSONObject representing the scene
+	 * @param nodeType					type of Node (ex: texts, buttons, etc)
+	 * @param pane						GridPane where the Nodes belong
+	 * @throws WorkflowParseException	sceneJSON does not fully represent a scene
+	 */
+	private void parseNodesFromJSONObject(JSONObject sceneJSON, String nodeType, GridPane pane) throws WorkflowParseException {
 		Object obj = sceneJSON.get(nodeType);
 		JSONArray nodesJSON;
 		if (obj != null) {
 			if (obj instanceof JSONArray) {
 				nodesJSON = (JSONArray) obj;
 				for (int i = 0; i < nodesJSON.size(); i++)
-					setNodeFromJSONObject(nodesJSON.get(i), nodeType, pane);
+					parseNodeFromJSONObject(nodesJSON.get(i), nodeType, pane);
 			} else {
 				throw new WorkflowParseException("Scene " + sceneIndex + " of state " + stateIndex + " " + nodeType + " is not of type JSONArray.");
 			}
 		}
 	}
 	
-	private void setNodeFromJSONObject(Object nodeObj, String nodeType, GridPane pane) throws WorkflowParseException {
+	/**
+	 * A general method to simplify code.
+	 * 
+	 * Finds a button, text, textfields, etc (Node) from the JSONObject
+	 * and creates them.
+	 * 
+	 * @param nodeObj					the node object to be parsed into a json object
+	 * @param nodeType					type of Node
+	 * @param pane						GridPane where the Nodes belong
+	 * @throws WorkflowParseException	nodeJSON does not fully represent a node
+	 */
+	private void parseNodeFromJSONObject(Object nodeObj, String nodeType, GridPane pane) throws WorkflowParseException {
 		JSONObject nodeJSON;
 		if (nodeObj != null) {
 			if (nodeObj instanceof JSONObject) {
 				nodeJSON = (JSONObject) nodeObj;
 				switch(nodeType) {
 				case WorkflowLanguageGlobal.TEXTS:
-					setTextFromJSONObject(nodeJSON, pane);
+					parseTextFromJSONObject(nodeJSON, pane);
 					break;
 				case WorkflowLanguageGlobal.TEXTFIELDS:
-					setTextFieldFromJSONObject(nodeJSON, pane);
+					parseTextFieldFromJSONObject(nodeJSON, pane);
 					break;
 				case WorkflowLanguageGlobal.CHECKBOXES:
-					setCheckBoxFromJSONObject(nodeJSON, pane);
+					parseCheckBoxFromJSONObject(nodeJSON, pane);
 					break;
 				case WorkflowLanguageGlobal.FILE_UPLOADERS:
-					setFileUploaderFromJSONObject(nodeJSON, pane);
+					parseFileUploaderFromJSONObject(nodeJSON, pane);
 					break;
 				case WorkflowLanguageGlobal.FILE_DOWNLOADERS:
-					setFileDownloaderFromJSONObject(nodeJSON, pane);
+					parseFileDownloaderFromJSONObject(nodeJSON, pane);
 					break;
 				case WorkflowLanguageGlobal.DROPDOWN_LISTS:
-					setDropDownListFromJSONObject(nodeJSON, pane);
+					parseDropdownListFromJSONObject(nodeJSON, pane);
 					break;
 				case WorkflowLanguageGlobal.BUTTONS:
-					setButtonFromJSONObject(nodeJSON, pane);
+					parseButtonFromJSONObject(nodeJSON, pane);
 					break;
 			}
 			} else {
@@ -140,17 +185,25 @@ class WorkflowSceneParser {
 		}
 	}
 	
-	private void setButtonFromJSONObject(JSONObject buttonJSON, GridPane pane) throws WorkflowParseException {
+	/**
+	 * Create a button based on the JSONObject 
+	 * and add it to the pane.
+	 * 
+	 * @param buttonJSON				JSONObject representing a button
+	 * @param pane						GridPane where the Nodes belong
+	 * @throws WorkflowParseException	buttonJSON does not fully represent a button or if id already exists	
+	 */
+	private void parseButtonFromJSONObject(JSONObject buttonJSON, GridPane pane) throws WorkflowParseException {
 		String nodeType = WorkflowLanguageGlobal.BUTTONS;
-		String id = getId(buttonJSON, nodeType);
-		int x = getX(buttonJSON, nodeType);
-		int y = getY(buttonJSON, nodeType);
-		String label = getLabel(buttonJSON, nodeType);
+		String id = parseId(buttonJSON, nodeType);
+		int x = parseX(buttonJSON, nodeType);
+		int y = parseY(buttonJSON, nodeType);
+		String label = parseLabel(buttonJSON, nodeType);
 		//TODO actions
 		EmailAndStateChangeButton button = new EmailAndStateChangeButton(label);
-		setEmailsFromJSONObject(buttonJSON, nodeType, button);
+		parseEmailsFromJSONObject(buttonJSON, nodeType, button);
 		
-		setChangeStatesFromJSONObject(buttonJSON, nodeType, button);
+		parseChangeStatesFromJSONObject(buttonJSON, nodeType, button);
 		
 		button.setId(id);
 		
@@ -163,16 +216,24 @@ class WorkflowSceneParser {
 		pane.add(button, x, y);
 	}
 
-	private void setDropDownListFromJSONObject(JSONObject dropdownJSON, GridPane pane) throws WorkflowParseException {
+	/**
+	 * Create a ChoiceBox based on the dropdownJSON and
+	 * add it to the pane.
+	 * 
+	 * @param dropdownJSON				JSONObject representing a ChoiceBox
+	 * @param pane						GridPane where the Nodes belong
+	 * @throws WorkflowParseException	dropdownJSON does not fully represent a ChoiceBox or if id already exists
+	 */
+	private void parseDropdownListFromJSONObject(JSONObject dropdownJSON, GridPane pane) throws WorkflowParseException {
 		ChoiceBox<String> cb = new ChoiceBox<>();
 		String nodeType = WorkflowLanguageGlobal.DROPDOWN_LISTS;
-		String id = getId(dropdownJSON, nodeType);
-		int x = getX(dropdownJSON, nodeType);
-		int y = getY(dropdownJSON, nodeType);
-		String label = getLabel(dropdownJSON, nodeType);
-		String hint = getHint(dropdownJSON, nodeType);
-		ObservableList<String> list = FXCollections.observableArrayList(getListOfStrings(dropdownJSON, nodeType));
-		boolean isRequired = isRequired(dropdownJSON, nodeType);
+		String id = parseId(dropdownJSON, nodeType);
+		int x = parseX(dropdownJSON, nodeType);
+		int y = parseY(dropdownJSON, nodeType);
+		String label = parseLabel(dropdownJSON, nodeType);
+		String hint = parseHint(dropdownJSON, nodeType);
+		ObservableList<String> list = FXCollections.observableArrayList(parseListOfStrings(dropdownJSON, nodeType));
+		boolean isRequired = parseIsRequired(dropdownJSON, nodeType);
 				
 		cb.setId(id);
 		cb.setItems(list);
@@ -194,18 +255,32 @@ class WorkflowSceneParser {
 		pane.add(hbox, x, y);
 	}
 
-	private void setFileDownloaderFromJSONObject(JSONObject fileDownloaderJSON, GridPane pane) {
+	/**
+	 * Create a file downloader node based on the fileDownloaderJSON.
+	 * 
+	 * @param fileDownloaderJSON		JSONObject representing the file downloader
+	 * @param pane						GridPane where the file downloader belongs
+	 */
+	private void parseFileDownloaderFromJSONObject(JSONObject fileDownloaderJSON, GridPane pane) {
 		// idk
 	}
 
-	private void setFileUploaderFromJSONObject(JSONObject fileUploaderJSON, GridPane pane) throws WorkflowParseException {
+	/**
+	 * Create a file uploader node based on the fileUploaderJSON.
+	 * 
+	 * @param fileUploaderJSON			JSONObject representing a FileChooserButton
+	 * @param pane						GridPaner where the FileChooserButton belongs
+	 * @throws WorkflowParseException	fileUploaderJSON does not fully represent a FileChooserButton or id already exists
+	 * @see FileChooserButton
+	 */
+	private void parseFileUploaderFromJSONObject(JSONObject fileUploaderJSON, GridPane pane) throws WorkflowParseException {
 		String nodeType = WorkflowLanguageGlobal.FILE_UPLOADERS;
-		String id = getId(fileUploaderJSON, nodeType);
-		int x = getX(fileUploaderJSON, nodeType);
-		int y = getY(fileUploaderJSON, nodeType);
-		String label = getLabel(fileUploaderJSON, nodeType);
-		boolean canSelectMultipleFiles = canSelectMultipleFiles(fileUploaderJSON, nodeType);
-		boolean isRequired = isRequired(fileUploaderJSON, nodeType);
+		String id = parseId(fileUploaderJSON, nodeType);
+		int x = parseX(fileUploaderJSON, nodeType);
+		int y = parseY(fileUploaderJSON, nodeType);
+		String label = parseLabel(fileUploaderJSON, nodeType);
+		boolean canSelectMultipleFiles = parseCanSelectMultipleFiles(fileUploaderJSON, nodeType);
+		boolean isRequired = parseIsRequired(fileUploaderJSON, nodeType);
 		
 		FileChooserButton fcb = new FileChooserButton(label, canSelectMultipleFiles);
 		fcb.setId(id);
@@ -225,15 +300,22 @@ class WorkflowSceneParser {
 		pane.add(fcb, x, y);
 	}
 
-	private void setCheckBoxFromJSONObject(JSONObject checkboxJSON, GridPane pane) throws WorkflowParseException {
+	/**
+	 * Create a checkbox from a JSONObject.
+	 * 
+	 * @param checkboxJSON				JSONObject representing a CheckBox
+	 * @param pane						GridPane where the CheckBox belongs
+	 * @throws WorkflowParseException	checkboxJSON does not fully represent a CheckBox or id already exists
+	 */
+	private void parseCheckBoxFromJSONObject(JSONObject checkboxJSON, GridPane pane) throws WorkflowParseException {
 		CheckBox cb = new CheckBox();
 		
 		String nodeType = WorkflowLanguageGlobal.CHECKBOXES;
-		String id = getId(checkboxJSON, nodeType);
-		int x = getX(checkboxJSON, nodeType);
-		int y = getY(checkboxJSON, nodeType);
-		String label = getLabel(checkboxJSON, nodeType);
-		boolean isRequired = isRequired(checkboxJSON, nodeType);
+		String id = parseId(checkboxJSON, nodeType);
+		int x = parseX(checkboxJSON, nodeType);
+		int y = parseY(checkboxJSON, nodeType);
+		String label = parseLabel(checkboxJSON, nodeType);
+		boolean isRequired = parseIsRequired(checkboxJSON, nodeType);
 		
 		cb.setId(id);
 		cb.setText(label);
@@ -246,36 +328,43 @@ class WorkflowSceneParser {
 		pane.add(cb, x, y);
 	}
 
-	private void setTextFromJSONObject(JSONObject textJSON, GridPane pane) throws WorkflowParseException {
+	/**
+	 * Create a text node from a JSONObject.
+	 * 
+	 * @param textJSON					JSONObject representing a Text node
+	 * @param pane						GridPane where the Text node belongs
+	 * @throws WorkflowParseException	textJSON does not fully represent a Text node
+	 */
+	private void parseTextFromJSONObject(JSONObject textJSON, GridPane pane) throws WorkflowParseException {
 		Text t = new Text();
 		
 		String nodeType = WorkflowLanguageGlobal.TEXTFIELDS;
-		String id = getId(textJSON, nodeType);
-		int x = getX(textJSON, nodeType);
-		int y = getY(textJSON, nodeType);
-		String label = getLabel(textJSON, nodeType);
+		int x = parseX(textJSON, nodeType);
+		int y = parseY(textJSON, nodeType);
+		String label = parseLabel(textJSON, nodeType);
 		
-		t.setId(id);
 		t.setText(label);
-		
-		if (idExistsAlready(id)) {
-			throw new WorkflowParseException("Scene " + sceneIndex + " of state " + stateIndex + "-" + nodeType + " has an id which is not unique.");
-		}
-		idToText.put(id, t);
 		
 		// add to pane
 		pane.add(t, x, y);
 	}
 	
-	private void setTextFieldFromJSONObject(JSONObject textfieldJSON, GridPane pane) throws WorkflowParseException {
+	/**
+	 * Create a TextField node from a JSONObject.
+	 * 
+	 * @param textfieldJSON				JSONObject representing a TextField
+	 * @param pane						GridPane where the TextField belongs
+	 * @throws WorkflowParseException	textfieldJSON does not fully represent a TextField or id already exists
+	 */
+	private void parseTextFieldFromJSONObject(JSONObject textfieldJSON, GridPane pane) throws WorkflowParseException {
 		TextField tf = new TextField();
 		String nodeType = WorkflowLanguageGlobal.TEXTFIELDS;
-		String id = getId(textfieldJSON, nodeType);
-		int x = getX(textfieldJSON, nodeType);
-		int y = getY(textfieldJSON, nodeType);
-		String label = getLabel(textfieldJSON, nodeType);
-		String hint = getHint(textfieldJSON, nodeType);
-		boolean isRequired = isRequired(textfieldJSON, nodeType);
+		String id = parseId(textfieldJSON, nodeType);
+		int x = parseX(textfieldJSON, nodeType);
+		int y = parseY(textfieldJSON, nodeType);
+		String label = parseLabel(textfieldJSON, nodeType);
+		String hint = parseHint(textfieldJSON, nodeType);
+		boolean isRequired = parseIsRequired(textfieldJSON, nodeType);
 		
 		Label l = new Label(label);
 		
@@ -294,35 +383,98 @@ class WorkflowSceneParser {
 		pane.add(hbox, x, y);
 	}
 	
-	private String getId(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
-		return getStringNode(jsonObj, nodeType, WorkflowLanguageGlobal.ID);
+	/** 
+	 * Get the ID of a JSONObject
+	 * @param jsonObj					the JSONObject
+	 * @param nodeType					the node type
+	 * @return							id
+	 * @throws WorkflowParseException	id does not exist or is of incorrect type
+	 */
+	private String parseId(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
+		return parseStringNode(jsonObj, nodeType, WorkflowLanguageGlobal.ID);
 	}
 	
-	private int getX(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
-		return getIntegerNode(jsonObj, nodeType, WorkflowLanguageGlobal.X);
+	/**
+	 * Get the X coordinate of a JSONObject.
+	 * 
+	 * @param jsonObj					the JSONObject
+	 * @param nodeType					the node type
+	 * @return							x coordinate
+	 * @throws WorkflowParseException	x does not exist or is of incorrect type
+	 */
+	private int parseX(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
+		return parseIntegerNode(jsonObj, nodeType, WorkflowLanguageGlobal.X);
 	}
 	
-	private int getY(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
-		return getIntegerNode(jsonObj, nodeType, WorkflowLanguageGlobal.Y);
+	/**
+	 * Get the Y coordinate of a JSONObject.
+	 * 
+	 * @param jsonObj					the JSONObject
+	 * @param nodeType					the node type
+	 * @return							y coordinate
+	 * @throws WorkflowParseException	y does not exist or is of incorrect type
+	 */
+	private int parseY(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
+		return parseIntegerNode(jsonObj, nodeType, WorkflowLanguageGlobal.Y);
 	}
 	
-	private String getLabel(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
-		return getStringNode(jsonObj, nodeType, WorkflowLanguageGlobal.LABEL);
+	/**
+	 * Get the label from a JSONObject.
+	 * 
+	 * @param jsonObj					the JSONObject
+	 * @param nodeType					the node type
+	 * @return							label string
+	 * @throws WorkflowParseException	label does not exist or is of incorrect type
+	 */
+	private String parseLabel(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
+		return parseStringNode(jsonObj, nodeType, WorkflowLanguageGlobal.LABEL);
 	}
 	
-	private boolean isRequired(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
-		return getBooleanNode(jsonObj, nodeType, WorkflowLanguageGlobal.IS_REQUIRED);
+	/**
+	 * Get the flag for if a JSONObject is required or not.
+	 * 
+	 * @param jsonObj					the JSONObject
+	 * @param nodeType					the node type
+	 * @return							true if JSONObject is required, else false
+	 * @throws WorkflowParseException	isRequired flag is of incorrect type
+	 */
+	private boolean parseIsRequired(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
+		return parseBooleanNode(jsonObj, nodeType, WorkflowLanguageGlobal.IS_REQUIRED);
 	}
 	
-	private boolean canSelectMultipleFiles(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
-		return getBooleanNode(jsonObj, nodeType, WorkflowLanguageGlobal.MULTIPLE_FILES);
+	/**
+	 * Get the flag for if a JSONObject can select multiple files or not.
+	 * 
+	 * @param jsonObj					the JSONObject
+	 * @param nodeType					the node type
+	 * @return							true if JSONObject can select multiple files, else false
+	 * @throws WorkflowParseException	canSelectMultipleFiles flag is of incorrect type
+	 */
+	private boolean parseCanSelectMultipleFiles(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
+		return parseBooleanNode(jsonObj, nodeType, WorkflowLanguageGlobal.MULTIPLE_FILES);
 	}
 	
-	private String getHint(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
-		return getStringNode(jsonObj, nodeType, WorkflowLanguageGlobal.HINT);
+	/**
+	 * Get hint string for a JSONObject.
+	 * 
+	 * @param jsonObj					the JSONObject
+	 * @param nodeType					the node type
+	 * @return							hint string
+	 * @throws WorkflowParseException	hint does not exist or is of incorrect type
+	 */
+	private String parseHint(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
+		return parseStringNode(jsonObj, nodeType, WorkflowLanguageGlobal.HINT);
 	}
 	
-	private List<String> getListOfStrings(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
+	/**
+	 * Get the list of strings for a JSONObject.
+	 * 
+	 * @param jsonObj					the JSONObject
+	 * @param nodeType					the node type
+	 * @return							list of strings
+	 * @throws WorkflowParseException	if list of strings does not exist or is of wrong type or an element of the list is not of type String
+	 */
+	private List<String> parseListOfStrings(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
 		List<String> strings = new ArrayList<>();
 		Object listObj = jsonObj.get(nodeType);
 		JSONArray listJSON;
@@ -344,7 +496,16 @@ class WorkflowSceneParser {
 		return strings;
 	}
 	
-	private int getIntegerNode(JSONObject jsonObj, String nodeType, String valueType) throws WorkflowParseException {
+	/**
+	 * Generic method to be called for finding integer values (Ex: x, y coordinates).
+	 * 
+	 * @param jsonObj					the JSONObject
+	 * @param nodeType					the node type
+	 * @param valueType					the value type (x, y, etc)
+	 * @return							the integer value
+	 * @throws WorkflowParseException	if the integer does not exist or is not an integer
+	 */
+	private int parseIntegerNode(JSONObject jsonObj, String nodeType, String valueType) throws WorkflowParseException {
 		Object intObj = jsonObj.get(nodeType);
 		int intVal;
 		if (intObj instanceof Integer) {
@@ -355,7 +516,16 @@ class WorkflowSceneParser {
 		return intVal;
 	}
 	
-	private String getStringNode(JSONObject jsonObj, String nodeType, String valueType) throws WorkflowParseException {
+	/**
+	 * Generic method to be called for finding String values (label, hint, etc)
+	 * 
+	 * @param jsonObj					the JSONObject
+	 * @param nodeType					the node type
+	 * @param valueType					the value type (label, hint, etc)
+	 * @return							the string value
+	 * @throws WorkflowParseException	if the string does not exist or is not a string
+	 */
+	private String parseStringNode(JSONObject jsonObj, String nodeType, String valueType) throws WorkflowParseException {
 		Object stringObj = jsonObj.get(nodeType);
 		String stringVal;
 		if (stringObj instanceof String) {
@@ -366,7 +536,14 @@ class WorkflowSceneParser {
 		return stringVal;
 	}
 	
-	private boolean getBooleanNode(JSONObject jsonObj, String nodeType, String valueType) {
+	/**
+	 * Generic method to be called for finding boolean values (isRequired, canSelectMultipleFiles)
+	 * @param jsonObj		the JSONObject
+	 * @param nodeType		the node type
+	 * @param valueType		the value type (isRequired, etc)
+	 * @return				the boolean value, or false if it was left out
+	 */
+	private boolean parseBooleanNode(JSONObject jsonObj, String nodeType, String valueType) {
 		Object booleanObj = jsonObj.get(nodeType);
 		boolean booleanVal;
 		if (booleanObj instanceof Boolean) {
@@ -377,6 +554,14 @@ class WorkflowSceneParser {
 		return booleanVal;
 	}
 	
+	/**
+	 * Checks to see if an id already exists in the set of existing ids.
+	 * 
+	 * Necessary for ensuring that all ids are unique.
+	 * 
+	 * @param id	the id we are checking
+	 * @return		true if id already exists, else false
+	 */
 	private boolean idExistsAlready(String id) {
 		return !(idToText.containsKey(id) ||
 				idToTextField.containsKey(id) ||
@@ -386,7 +571,15 @@ class WorkflowSceneParser {
 				idToButton.containsKey(id));
 	}
 	
-	private void setEmailsFromJSONObject(JSONObject buttonJSON, String nodeType, EmailAndStateChangeButton button) throws WorkflowParseException {
+	/**
+	 * Set the list of email transactions for an EmailAndStateChangeButton.
+	 * 
+	 * @param buttonJSON				the JSONObject for a button
+	 * @param nodeType					the node type
+	 * @param button					the EmailAndStateChangeButton to be mutated
+	 * @throws WorkflowParseException	if an email do not exist or are of wrong format
+	 */
+	private void parseEmailsFromJSONObject(JSONObject buttonJSON, String nodeType, EmailAndStateChangeButton button) throws WorkflowParseException {
 		Object emailsObj = buttonJSON.get(WorkflowLanguageGlobal.EMAILS);
 		JSONArray emailsJSON;
 		if (emailsObj == null)
@@ -398,7 +591,7 @@ class WorkflowSceneParser {
 				JSONObject emailJSON;
 				if (emailObj instanceof JSONObject) {
 					emailJSON = (JSONObject) emailObj;
-					setEmailFromJSONObject(emailJSON, nodeType, button, i);
+					parseEmailFromJSONObject(emailJSON, nodeType, button, i);
 				} else {
 					throw new WorkflowParseException("Scene " + sceneIndex + " of state " + stateIndex + "-" + nodeType + " email " + i + " not of type JSONObject");
 				}
@@ -408,8 +601,17 @@ class WorkflowSceneParser {
 		}
 	}
 	
-	private void setEmailFromJSONObject(JSONObject emailJSON, String nodeType, EmailAndStateChangeButton button, int index) throws WorkflowParseException {
-		String to = getStringNode(emailJSON, nodeType, WorkflowLanguageGlobal.TO);
+	/**
+	 * Sets one email transaction for an EmailAndStateChangeButton.
+	 * 
+	 * @param emailJSON					the JSONObject for an email
+	 * @param nodeType					the node type
+	 * @param button					the EmailAndStateChangeButton to be mutated
+	 * @param index						the index of the email
+	 * @throws WorkflowParseException	if the email attributes are not of type String or they are missing, or if the email address is not a valid
+	 */
+	private void parseEmailFromJSONObject(JSONObject emailJSON, String nodeType, EmailAndStateChangeButton button, int index) throws WorkflowParseException {
+		String to = parseStringNode(emailJSON, nodeType, WorkflowLanguageGlobal.TO);
 		// check that 'to' is of email format
 		Pattern p = Pattern.compile(".+@.+\\.[a-z]+");
 		Matcher m = p.matcher(to);
@@ -418,20 +620,33 @@ class WorkflowSceneParser {
 		if (!m.matches()) {
 			throw new WorkflowParseException("Scene " + sceneIndex + " of state " + stateIndex + "-" + nodeType + " email " + index + " to is not a valid email address.");
 		}
-		String subject = getStringNode(emailJSON, nodeType, WorkflowLanguageGlobal.SUBJECT);
-		String body = getStringNode(emailJSON, nodeType, WorkflowLanguageGlobal.BODY);
+		String subject = parseStringNode(emailJSON, nodeType, WorkflowLanguageGlobal.SUBJECT);
+		String body = parseStringNode(emailJSON, nodeType, WorkflowLanguageGlobal.BODY);
 		
 		button.addEmail(to, subject, body);
 	}
 	
-	private void setChangeStatesFromJSONObject(JSONObject changeStateJSON, String nodeType, EmailAndStateChangeButton button) throws WorkflowParseException {
-		List<String> nextStates = getListOfStrings(changeStateJSON, WorkflowLanguageGlobal.NEXT_STATES);
-		List<String> addToMetadata = getListOfStrings(changeStateJSON, WorkflowLanguageGlobal.METADATA);
+	/**
+	 * Set the next states and metadata to be added to the EmailAndStateChangeButton.
+	 * 
+	 * @param changeStateJSON			the JSONObject for a state change
+	 * @param nodeType					the node type
+	 * @param button					the EmailAndStateChangeButton to be mutated
+	 * @throws WorkflowParseException	if the list of strings don't exist or are of incorrect format
+	 */
+	private void parseChangeStatesFromJSONObject(JSONObject changeStateJSON, String nodeType, EmailAndStateChangeButton button) throws WorkflowParseException {
+		List<String> nextStates = parseListOfStrings(changeStateJSON, WorkflowLanguageGlobal.NEXT_STATES);
+		List<String> addToMetadata = parseListOfStrings(changeStateJSON, WorkflowLanguageGlobal.METADATA);
 		
 		button.setNextStates(nextStates);
 		button.setAddToMetadata(addToMetadata);
 	}
 
+	
+	/**
+	 * Gets the scene entry.
+	 * @return	the scene entry
+	 */
 	public MyEntry<String, Scene> getSceneEntry() {
 		return entry;
 	}
