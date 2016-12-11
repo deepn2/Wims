@@ -1,13 +1,24 @@
 package com.group4inc.wims.workflow.parser;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import com.group4inc.wims.workflow.model.MyEntry;
+import com.group4inc.wims.workflow.model.ui.FileChooserButton;
+import com.group4inc.wims.workflow.model.ui.FileChooserEventHandler;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -15,6 +26,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 
@@ -27,6 +39,14 @@ import javafx.stage.FileChooser;
 class WorkflowSceneParser {
 	private MyEntry<String, Scene> entry;
 	private int stateIndex, sceneIndex;
+	private Map<String, Text> idToText = new HashMap<>();
+	private Map<String, TextField> idToTextField = new HashMap<>();
+	private Map<String, CheckBox> idToCheckBox = new HashMap<>();
+	private Map<String, FileChooserButton> idToFileChooser = new HashMap<>();
+	// make map for file downloaders
+	private Map<String, ChoiceBox> idToDropDown = new HashMap<>();
+	private Map<String, Button> idToButton = new HashMap<>();
+	private Map<String, Node> requiredNodes = new HashMap<>();
 	
 	private static final String[] NODE_TYPES = {
 			WorkflowLanguageGlobal.TEXTS,
@@ -118,7 +138,7 @@ class WorkflowSceneParser {
 					break;
 			}
 			} else {
-				throw new WorkflowParseException("Scene " + sceneIndex + " of state " + stateIndex + " " + nodeType + " is not of type JSONArray.");
+				throw new WorkflowParseException("Scene " + sceneIndex + " of state " + stateIndex + "-" + nodeType + " is not of type JSONArray.");
 			}
 		}
 	}
@@ -135,24 +155,44 @@ class WorkflowSceneParser {
 		b.setId(id);
 		b.setText(label);
 		
-		//TODO add to pane
-
+		if (idExistsAlready(id)) {
+			throw new WorkflowParseException("Scene " + sceneIndex + " of state " + stateIndex + "-" + nodeType + " has an id which is not unique.");
+		}
+		idToButton.put(id, b);
+		
+		// add to pane
+		pane.add(b, x, y);
 	}
 
 	private void setDropDownListFromJSONObject(JSONObject dropdownJSON, GridPane pane) throws WorkflowParseException {
-		ChoiceBox cb = new ChoiceBox();
+		ChoiceBox<String> cb = new ChoiceBox<>();
 		String nodeType = WorkflowLanguageGlobal.DROPDOWN_LISTS;
 		String id = getId(dropdownJSON, nodeType);
 		int x = getX(dropdownJSON, nodeType);
 		int y = getY(dropdownJSON, nodeType);
 		String label = getLabel(dropdownJSON, nodeType);
 		String hint = getHint(dropdownJSON, nodeType);
-		List<String> list = getListOfStrings(dropdownJSON, nodeType);
+		ObservableList<String> list = getListOfStrings(dropdownJSON, nodeType);
 		boolean isRequired = isRequired(dropdownJSON, nodeType);
-		
+				
 		cb.setId(id);
+		cb.setItems(list);
 		
-		//TODO add to pane
+		if (idExistsAlready(id)) {
+			throw new WorkflowParseException("Scene " + sceneIndex + " of state " + stateIndex + "-" + nodeType + " has an id which is not unique.");
+		}
+		idToDropDown.put(id, cb);
+		
+		Label l = new Label(label);
+		HBox hbox = new HBox();
+		hbox.getChildren().addAll(l, cb);
+
+		if (isRequired) {
+			requiredNodes.put(id, cb);
+		}
+		
+		// add to pane
+		pane.add(hbox, x, y);
 	}
 
 	private void setFileDownloaderFromJSONObject(JSONObject fileDownloaderJSON, GridPane pane) {
@@ -160,17 +200,30 @@ class WorkflowSceneParser {
 	}
 
 	private void setFileUploaderFromJSONObject(JSONObject fileUploaderJSON, GridPane pane) throws WorkflowParseException {
-		FileChooser fc = new FileChooser();
 		String nodeType = WorkflowLanguageGlobal.FILE_UPLOADERS;
 		String id = getId(fileUploaderJSON, nodeType);
 		int x = getX(fileUploaderJSON, nodeType);
 		int y = getY(fileUploaderJSON, nodeType);
 		String label = getLabel(fileUploaderJSON, nodeType);
-		int numFiles = getNumFiles(fileUploaderJSON, nodeType);
+		boolean canSelectMultipleFiles = canSelectMultipleFiles(fileUploaderJSON, nodeType);
 		boolean isRequired = isRequired(fileUploaderJSON, nodeType);
 		
-		fc.setTitle(label);
-		//TODO add to pane
+		FileChooserButton fcb = new FileChooserButton(label, canSelectMultipleFiles);
+		fcb.setId(id);
+		// should show filechooser and set files accordingly to the FileChooserButton
+		fcb.setOnAction(new FileChooserEventHandler(fcb));
+		
+		if (idExistsAlready(id)) {
+			throw new WorkflowParseException("Scene " + sceneIndex + " of state " + stateIndex + "-" + nodeType + " has an id which is not unique.");
+		}
+		idToFileChooser.put(id, fcb);
+		
+		if (isRequired) {
+			requiredNodes.put(id, fcb);
+		}
+		
+		// add to pane
+		pane.add(fcb, x, y);
 	}
 
 	private void setCheckBoxFromJSONObject(JSONObject checkboxJSON, GridPane pane) throws WorkflowParseException {
@@ -185,7 +238,13 @@ class WorkflowSceneParser {
 		
 		cb.setId(id);
 		cb.setText(label);
-		//TODO add to pane
+		
+		if (idExistsAlready(id)) {
+			throw new WorkflowParseException("Scene " + sceneIndex + " of state " + stateIndex + "-" + nodeType + " has an id which is not unique.");
+		}
+		idToCheckBox.put(id, cb);
+		
+		pane.add(cb, x, y);
 	}
 
 	private void setTextFromJSONObject(JSONObject textJSON, GridPane pane) throws WorkflowParseException {
@@ -200,7 +259,13 @@ class WorkflowSceneParser {
 		t.setId(id);
 		t.setText(label);
 		
-		//TODO add to pane
+		if (idExistsAlready(id)) {
+			throw new WorkflowParseException("Scene " + sceneIndex + " of state " + stateIndex + "-" + nodeType + " has an id which is not unique.");
+		}
+		idToText.put(id, t);
+		
+		// add to pane
+		pane.add(t, x, y);
 	}
 	
 	private void setTextFieldFromJSONObject(JSONObject textfieldJSON, GridPane pane) throws WorkflowParseException {
@@ -218,8 +283,16 @@ class WorkflowSceneParser {
 		tf.setId(id);
 		tf.setPromptText(hint);
 		
-		//TODO add to pane
+		if (idExistsAlready(id)) {
+			throw new WorkflowParseException("Scene " + sceneIndex + " of state " + stateIndex + "-" + nodeType + " has an id which is not unique.");
+		}
+		idToTextField.put(id, tf);
+
+		HBox hbox = new HBox();
+		hbox.getChildren().addAll(l, tf);
 		
+		// add to pane
+		pane.add(hbox, x, y);
 	}
 	
 	private String getId(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
@@ -234,10 +307,6 @@ class WorkflowSceneParser {
 		return getIntegerNode(jsonObj, nodeType, WorkflowLanguageGlobal.Y);
 	}
 	
-	private int getNumFiles(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
-		return getIntegerNode(jsonObj, nodeType, WorkflowLanguageGlobal.NUM_FILES);
-	}
-	
 	private String getLabel(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
 		return getStringNode(jsonObj, nodeType, WorkflowLanguageGlobal.LABEL);
 	}
@@ -246,12 +315,16 @@ class WorkflowSceneParser {
 		return getBooleanNode(jsonObj, nodeType, WorkflowLanguageGlobal.IS_REQUIRED);
 	}
 	
+	private boolean canSelectMultipleFiles(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
+		return getBooleanNode(jsonObj, nodeType, WorkflowLanguageGlobal.MULTIPLE_FILES);
+	}
+	
 	private String getHint(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
 		return getStringNode(jsonObj, nodeType, WorkflowLanguageGlobal.HINT);
 	}
 	
-	private List<String> getListOfStrings(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
-		List<String> strings = new ArrayList<>();
+	private ObservableList<String> getListOfStrings(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
+		ObservableList<String> strings = FXCollections.observableArrayList();
 		Object listObj = jsonObj.get(nodeType);
 		JSONArray listJSON;
 		if (listObj instanceof JSONArray) {
@@ -303,6 +376,15 @@ class WorkflowSceneParser {
 			return false;
 		}
 		return booleanVal;
+	}
+	
+	private boolean idExistsAlready(String id) {
+		return !(idToText.containsKey(id) ||
+				idToTextField.containsKey(id) ||
+				idToCheckBox.containsKey(id) ||
+				idToFileChooser.containsKey(id) ||
+				idToDropDown.containsKey(id) ||
+				idToButton.containsKey(id));
 	}
 
 	public MyEntry<String, Scene> getSceneEntry() {

@@ -17,7 +17,7 @@ abstract class WorkflowLanguageGlobal {
 	public static final String IS_REQUIRED = "is_required";
 	public static final String CHECKBOXES = "checkboxes";
 	public static final String FILE_UPLOADERS = "file_uploaders";
-	public static final String NUM_FILES = "num_files";
+	public static final String MULTIPLE_FILES = "multiple_files";
 	public static final String FILE_DOWNLOADERS = "file_downloaders";
 	public static final String DROPDOWN_LISTS = "dropdown_lists";
 	public static final String LIST = "list";
