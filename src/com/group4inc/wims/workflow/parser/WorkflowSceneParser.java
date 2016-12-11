@@ -1,26 +1,24 @@
 package com.group4inc.wims.workflow.parser;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import com.group4inc.wims.workflow.model.MyEntry;
+import com.group4inc.wims.workflow.model.ui.EmailAndStateChangeButton;
 import com.group4inc.wims.workflow.model.ui.FileChooserButton;
 import com.group4inc.wims.workflow.model.ui.FileChooserEventHandler;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.SortedList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
@@ -28,7 +26,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
 
 /**
  * WorkflowSceneParser to cleanup the main WorkflowParser
@@ -44,8 +41,8 @@ class WorkflowSceneParser {
 	private Map<String, CheckBox> idToCheckBox = new HashMap<>();
 	private Map<String, FileChooserButton> idToFileChooser = new HashMap<>();
 	// make map for file downloaders
-	private Map<String, ChoiceBox> idToDropDown = new HashMap<>();
-	private Map<String, Button> idToButton = new HashMap<>();
+	private Map<String, ChoiceBox<String>> idToDropDown = new HashMap<>();
+	private Map<String, EmailAndStateChangeButton> idToButton = new HashMap<>();
 	private Map<String, Node> requiredNodes = new HashMap<>();
 	
 	private static final String[] NODE_TYPES = {
@@ -144,24 +141,26 @@ class WorkflowSceneParser {
 	}
 	
 	private void setButtonFromJSONObject(JSONObject buttonJSON, GridPane pane) throws WorkflowParseException {
-		Button b = new Button();
 		String nodeType = WorkflowLanguageGlobal.BUTTONS;
 		String id = getId(buttonJSON, nodeType);
 		int x = getX(buttonJSON, nodeType);
 		int y = getY(buttonJSON, nodeType);
 		String label = getLabel(buttonJSON, nodeType);
 		//TODO actions
+		EmailAndStateChangeButton button = new EmailAndStateChangeButton(label);
+		setEmailsFromJSONObject(buttonJSON, nodeType, button);
 		
-		b.setId(id);
-		b.setText(label);
+		setChangeStatesFromJSONObject(buttonJSON, nodeType, button);
+		
+		button.setId(id);
 		
 		if (idExistsAlready(id)) {
 			throw new WorkflowParseException("Scene " + sceneIndex + " of state " + stateIndex + "-" + nodeType + " has an id which is not unique.");
 		}
-		idToButton.put(id, b);
+		idToButton.put(id, button);
 		
 		// add to pane
-		pane.add(b, x, y);
+		pane.add(button, x, y);
 	}
 
 	private void setDropDownListFromJSONObject(JSONObject dropdownJSON, GridPane pane) throws WorkflowParseException {
@@ -172,7 +171,7 @@ class WorkflowSceneParser {
 		int y = getY(dropdownJSON, nodeType);
 		String label = getLabel(dropdownJSON, nodeType);
 		String hint = getHint(dropdownJSON, nodeType);
-		ObservableList<String> list = getListOfStrings(dropdownJSON, nodeType);
+		ObservableList<String> list = FXCollections.observableArrayList(getListOfStrings(dropdownJSON, nodeType));
 		boolean isRequired = isRequired(dropdownJSON, nodeType);
 				
 		cb.setId(id);
@@ -323,8 +322,8 @@ class WorkflowSceneParser {
 		return getStringNode(jsonObj, nodeType, WorkflowLanguageGlobal.HINT);
 	}
 	
-	private ObservableList<String> getListOfStrings(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
-		ObservableList<String> strings = FXCollections.observableArrayList();
+	private List<String> getListOfStrings(JSONObject jsonObj, String nodeType) throws WorkflowParseException {
+		List<String> strings = new ArrayList<>();
 		Object listObj = jsonObj.get(nodeType);
 		JSONArray listJSON;
 		if (listObj instanceof JSONArray) {
@@ -385,6 +384,52 @@ class WorkflowSceneParser {
 				idToFileChooser.containsKey(id) ||
 				idToDropDown.containsKey(id) ||
 				idToButton.containsKey(id));
+	}
+	
+	private void setEmailsFromJSONObject(JSONObject buttonJSON, String nodeType, EmailAndStateChangeButton button) throws WorkflowParseException {
+		Object emailsObj = buttonJSON.get(WorkflowLanguageGlobal.EMAILS);
+		JSONArray emailsJSON;
+		if (emailsObj == null)
+			return;
+		if (emailsObj instanceof JSONArray) {
+			emailsJSON = (JSONArray) emailsObj;
+			for (int i = 0; i < emailsJSON.size(); i++) {
+				Object emailObj = emailsJSON.get(i);
+				JSONObject emailJSON;
+				if (emailObj instanceof JSONObject) {
+					emailJSON = (JSONObject) emailObj;
+					setEmailFromJSONObject(emailJSON, nodeType, button, i);
+				} else {
+					throw new WorkflowParseException("Scene " + sceneIndex + " of state " + stateIndex + "-" + nodeType + " email " + i + " not of type JSONObject");
+				}
+			}
+		} else {
+			throw new WorkflowParseException("Scene " + sceneIndex + " of state " + stateIndex + "-" + nodeType + " emails is not of type JSONArray");
+		}
+	}
+	
+	private void setEmailFromJSONObject(JSONObject emailJSON, String nodeType, EmailAndStateChangeButton button, int index) throws WorkflowParseException {
+		String to = getStringNode(emailJSON, nodeType, WorkflowLanguageGlobal.TO);
+		// check that 'to' is of email format
+		Pattern p = Pattern.compile(".+@.+\\.[a-z]+");
+		Matcher m = p.matcher(to);
+		
+		// to is not of email format
+		if (!m.matches()) {
+			throw new WorkflowParseException("Scene " + sceneIndex + " of state " + stateIndex + "-" + nodeType + " email " + index + " to is not a valid email address.");
+		}
+		String subject = getStringNode(emailJSON, nodeType, WorkflowLanguageGlobal.SUBJECT);
+		String body = getStringNode(emailJSON, nodeType, WorkflowLanguageGlobal.BODY);
+		
+		button.addEmail(to, subject, body);
+	}
+	
+	private void setChangeStatesFromJSONObject(JSONObject changeStateJSON, String nodeType, EmailAndStateChangeButton button) throws WorkflowParseException {
+		List<String> nextStates = getListOfStrings(changeStateJSON, WorkflowLanguageGlobal.NEXT_STATES);
+		List<String> addToMetadata = getListOfStrings(changeStateJSON, WorkflowLanguageGlobal.METADATA);
+		
+		button.setNextStates(nextStates);
+		button.setAddToMetadata(addToMetadata);
 	}
 
 	public MyEntry<String, Scene> getSceneEntry() {
