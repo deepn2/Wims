@@ -4,8 +4,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.group4inc.wims.workflow.fsm.WorkflowStateMachine;
@@ -158,5 +160,22 @@ public class WorkflowTemplate implements Serializable {
 	 */
 	public void removeUserFromTemplate(String username) {
 		usersToRoles.remove(username);
+	}
+	
+	
+	/**
+	 * This method determines all users associated with the WorkflowTemplate and returns them in a list
+	 * 
+	 * @return a list of all users associated with the WorkflowTemplate
+	 */
+	public List<String> getUsers() {
+		List<String> users = null;
+		Iterator<Entry<String, String>> it = usersToRoles.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry pair = it.next();
+			String name = (String) pair.getKey();
+			users.add(name);
+		}
+		return users;
 	}
 }

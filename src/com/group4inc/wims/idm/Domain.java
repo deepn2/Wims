@@ -52,5 +52,15 @@ public class Domain {
 		//
 		return out;
 	}
+	
+	/**
+	 * Returns a List of WorkflowTemplates with which the domain is associated
+	 * 
+	 * @return	List<WorkflowTemplate> of associated workflow templates
+	 */
+	
+	public List<WorkflowTemplate> getWorkflowTemplates(){
+		return workflowTemplates;
+	}
 
 }
