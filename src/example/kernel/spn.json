@@ -1,0 +1,142 @@
+{
+  "roles": [
+    {
+      "role": "Secretary",
+      "usernames": ["carold"]
+    },
+    {
+      "role": "Dean",
+      "usernames": ["alexb", "alexb"]
+    }
+  ],
+  "owners": ["Secretary"],
+  "start_state": "initial",
+  "states": [
+    {
+      "id": "initial",
+      "scenes": [
+        {
+          "role": "Secretary",
+          "texts": [
+            {
+              "x": 0,
+              "y": 0,
+              "label": "Requesting an spn"
+            }
+          ],
+          "textfields": [
+            {
+              "id": "student_name",
+              "x": 0,
+              "y": 1,
+              "label": "Enter the student's name: ",
+              "hint": "Joe Shmoe",
+              "is_required": true
+            },
+            {
+              "id": "student_ruid",
+              "x": 0,
+              "y": 1,
+              "label": "Enter the student's RUID: ",
+              "hint": "152008525",
+              "is_required": true
+            },
+            {
+              "id": "student_email",
+              "x": 0,
+              "y": 2,
+              "label": "Enter the student's email: ",
+              "hint": "example@gmail.com",
+              "is_required": true
+            },
+            {
+              "id": "course",
+              "x": 0,
+              "y": 3,
+              "label": "Enter the course: ",
+              "hint": "198:431",
+              "is_required": true
+            }
+          ],
+          "buttons": [
+            {
+              "id": "continue_button",
+              "x": 0,
+              "y": 4,
+              "label": "Request",
+              "action": {
+                "change_to_states": {
+                  "next_states": ["approval"],
+                  "metadata": ["student_name", "student_ruid", "student_email", "course"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "approval",
+      "scenes": [
+        {
+          "role": "Dean",
+          "texts": [
+            {
+              "x": 0,
+              "y": 0,
+              "label": ["Approve ", "<student_name>", "'s spn request."]
+            },
+            {
+              "x": 0,
+              "y": 1,
+              "label": ["RUID: ", "<student_ruid>"]
+            },
+            {
+              "x": 0,
+              "y": 2,
+              "label": ["Course:  ", "<course>"]
+            }
+          ],
+          "textfields": [
+            {
+              "id": "dean_name",
+              "x": 0,
+              "y": 3,
+              "label": "Enter your name ",
+              "hint": "Dean Borgida",
+              "is_required": true
+            }
+          ],
+          "buttons": [
+            {
+              "id": "accept_button",
+              "x": 0,
+              "y": 4,
+              "label": "Accept",
+              "action": {
+                "change_to_states": {
+                  "next_states": ["approval"],
+                  "metadata": ["dean_name"]
+                }
+              }
+            },
+            {
+              "id": "reject_button",
+              "x": 1,
+              "y": 4,
+              "label": "Reject",
+              "action": {
+                "change_to_states": {
+                  "next_states": ["done"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "done"
+    }
+  ]
+}
